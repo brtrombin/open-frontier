@@ -19,6 +19,12 @@ Front-end server "FRONTEND" (Windows XP/7/10: C4/C5, S2, MS01, or Sprocket)
 
 Those PCs are dying, Windows 2000 speaks only SMB1, and every workaround keeps Windows 2000 alive in some form (native, or in a VM). In November 2026 Adre Lanine showed a working prototype that replaces both PCs with one modern computer and doubles the output resolution. That work is unpublished. This project aims to build an open equivalent.
 
+## Scope: the SP-3000 first, the whole SP family by design
+
+Fujifilm's MS11 scanner software drives the SP-500, SP-1500, SP-2000, SP-2500 and SP-3000, which suggests a shared software layer across the family (medium confidence). The physical link differs per model: FireWire on the SP-3000 (high confidence), USB reported for the SP-500 and SCSI reported for some SP-2000/SP-1500 boards (low confidence, from sale listings). The code therefore keeps the transport (FireWire, USB, SCSI) separate from the scanner protocol and the image pipeline, so other models can be added. The SP-3000 is the first target because it is the one we can test.
+
+No open-source project for any Frontier SP scanner was found (GitHub and web search, 2026-11-25).
+
 ## Goal
 
 One Linux PC, one FireWire card, a web interface:

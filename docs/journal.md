@@ -2,6 +2,26 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-25 (later): prior art for the whole Frontier SP family
+
+**Searched**: GitHub repositories and code ("fuji frontier", "frontier scanner", "sp3000 scanner", "LukeUsbDrv", "frontier ms11"), plus web searches for open drivers or reverse-engineering work on the SP-500, SP-1500, SP-2000, SP-2500 and SP-3000.
+
+**Found**
+- [torarin/fujirawconvert](https://github.com/torarin/fujirawconvert): SP-3000 menu 2241 dumps to TIFF. The only open code related to Frontier scanners.
+- [jacobjuul/fujifrontier](https://github.com/jacobjuul/fujifrontier): "public wiki about the frontier scanners", but the README is the only content (checked 2026-11-25).
+- Sprocket (Boutique Film Lab): commercial and closed. Decodes the MS11 spool formats; it does not drive the scanner over its link.
+- ProScan (Typischanti): Frontier-style workflow for Reflecta/PIE scanners, not Fujifilm hardware.
+- Adre Lanine's SP-3000 project: unpublished.
+
+**Not found**: any open driver, protocol description or SANE backend for any Frontier SP model. Confidence: medium (search engines and GitHub search only; forums such as minilabhelp.com could not be read).
+
+**Family facts**
+- MS11 supports the SP-500, SP-1500, SP-2000, SP-2500 and SP-3000 (minilablaser.com listing). Medium confidence that this means shared protocol concepts across models.
+- SP-500: "stand-alone SP500 USB" in a refurbished-kit listing; a forum post names an SP-500 USB driver INF on the install CDs. Low-medium confidence.
+- SP-2000/SP-1500: some board listings mention SCSI. Low confidence.
+
+**Decision**: keep transport, scanner protocol and image pipeline as separate layers (see `src/README.md`), so other SP models can be added later.
+
 ## 2026-11-25: project start, research and repository base
 
 **Done**
