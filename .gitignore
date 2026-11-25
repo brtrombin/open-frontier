@@ -1,0 +1,101 @@
+# open-frontier .gitignore
+#
+# This is a public repository. Never commit Fujifilm software, firmware,
+# manuals or data files, and never commit data collected from anyone's
+# machine. Keep those on external drives and share them privately.
+# Only our own notes and our own code belong here.
+
+# --- Fujifilm / Windows binaries and installers ---
+*.exe
+*.dll
+*.sys
+*.drv
+*.vxd
+*.ocx
+*.cpl
+*.inf
+*.cat
+*.cab
+*.msi
+*.msp
+*.iso
+*.img
+*.vhd
+*.vhdx
+*.vmdk
+*.qcow2
+
+# --- Firmware and memory dumps ---
+*.bin
+*.rom
+*.hex
+*.fw
+*.eep
+*.dmp
+
+# --- Fujifilm data formats (CCD dumps, MS11 spool files) ---
+*.tag
+*.raw
+*.RAW
+*.INF
+*.inf
+
+# --- Configuration and registry exports from real machines ---
+*.reg
+*.ini
+*.cfg
+*.nfo
+*.mdf
+*.ldf
+
+# --- Manuals and documents (copyrighted) ---
+*.pdf
+*.chm
+*.doc
+*.docx
+
+# --- Bus captures ---
+*.pcap
+*.pcapng
+*.nosy
+*.trace
+
+# --- Images, video, archives (scans, photos of machines, collected bundles) ---
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.heic
+*.mp4
+*.mov
+*.zip
+*.7z
+*.rar
+*.gz
+*.tgz
+*.xz
+*.zst
+
+# --- Folders that hold private or proprietary material ---
+collected/
+captures/
+disk-images/
+vendor/
+fuji/
+ghidra/
+*.gpr
+*.rep/
+
+# --- Local environments and build output ---
+.venv/
+__pycache__/
+build/
+target/
+.DS_Store
+Thumbs.db
+
+# --- Allowed exceptions (our own files) ---
+!collect/*.bat
+!**/README.md
