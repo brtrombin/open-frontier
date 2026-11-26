@@ -15,6 +15,10 @@ As soon as an OHCI controller is loaded, Linux joins the bus as a full node and 
 
 All of this is standard 1394 behavior that the scanner should tolerate, because the Toshiba does similar things. But it is not "nothing". Mitigation: blacklist every protocol driver and the OHCI driver itself, then load `firewire_ohci` by hand with tracepoints on, so that we log every packet Linux sends. See `phase1-runbook.md`.
 
+### 1b. Connecting a host is a power-on event (medium)
+
+Jack Chauvel's guide says one FireWire link goes to the scanner's power unit and that powering the host PC switches the scanner on through it. So "connect the Linux PC and only read" also means "power up the scanner, its lamp and its init". Any stage that connects our hardware (1a or 1b) must be planned as a full scanner power-up, with the operator present and the usual warm-up wait. The power link probably relies on 6-pin bus power, which is why `hardware.md` asks for a card that supplies it.
+
 ### 2. Electrical safety on 6-pin FireWire (medium-high)
 
 6-pin FireWire carries bus power (8 to 30 V). Two machines on different outlets can have a ground offset, and hot-plugging is a known way to kill 1394 PHYs, on either side. A dead PHY in the image box would be a serious repair. Rule: one grounded power strip for scanner and PCs, plug and unplug FireWire only with everything off.

@@ -2,6 +2,24 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (later): full read of Jack Chauvel's ESXi guide, and Sebastian Schlueter's review
+
+**Sources**: https://www.jackchauvel.com.au/guide-to-virtualising-a-fuji-frontier-sp3000/ (v1.0 draft, 2020-10-12) and https://www.sebastian-schlueter.com/blog/2018/3/7/the-magic-fuji-frontier-sp-3000. Read from copies pasted by the project owner; summarized in our words.
+
+**Chauvel, facts relevant to us** (his own setup, C4/C5 software; medium confidence each)
+- Naming: DI = EZPC00 (Windows 2000, scanner control), PIC = FRONTEND (Windows XP, image output/export). Connected by a crossover Ethernet cable with static IPs. Reproducing the network in a VM only needed the same IPs on a virtual switch.
+- FireWire links: one goes to the scanner's power unit and **triggers the scanner's power-up when the host is on**; the other is the main data link between the image controller (scan head) and EZPC00.
+- His original EZPC00 used two FireWire controllers (onboard port + add-in card). In the VM, **one card with two ports worked**. No need to match the original chipset: a VIA VT6306/7/8 card worked.
+- A first, smaller VIA card failed with 1394 initialization errors; he attributes it to "not enough juice". Likely a bus power issue.
+- Working cold boot: power on the host (which powers the scanner), **wait about 3 minutes**, then start the VMs. Starting the VMs automatically, right after host boot, caused 1394 errors: the scanner needs time to finish its internal boot before the software's checks.
+- Boot sequence seen from EZPC00: the Frontier software loads, runs calibration, then connects to the image controller and initializes the scanner; it errors if FRONTEND is not reachable.
+- Win2000 VM: 1 vCPU, 1 GB, BusLogic SCSI, VMware legacy tools (winPre2k.iso) after security update KB835732. The Frontier desk keyboard could not be passed through.
+- Hardware: HP EliteDesk G1 SFF, i5-4590, Q87, VT-d; ESXi 7.0.0.
+
+**Schlueter** (secondary): the CCD is shifted by two small actuators; the largest output (XXL) is about 4096 x 4096 px for 6x6 and 4096 x 6144 px for 6x9; output can be BMP with more than 8 bits per channel (unverified); Digital ICE uses the IR channel.
+
+**Changes made**: `CLAUDE.md` (links, power-on behavior), `hardware.md` (bus power requirement), `plan-review.md` (new point 1b), `phase1-runbook.md` (power-on order in 1b).
+
 ## 2026-11-26 (later): second thread, an owner's failed virtualised setup
 
 **Source**: Reddit thread "Reconnecting Fuji SP-3000 to Virtualised Setup (After Engineer Reversal & Loaned Tower)" by u/Flimsy-Wedding-3833, Norwich UK, about one year old (https://www.reddit.com/r/AnalogCommunity/comments/1m6cqib/reconnecting_fuji_sp3000_to_virtualised_setup/). Read from a copy pasted by the project owner; summarized in our words.

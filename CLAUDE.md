@@ -37,7 +37,9 @@ Scanner PC "EZPC00" (Toshiba, Windows 2000 Pro, A1 or MS01+MS11 or S1)
 Server "FRONTEND" (XP/7/10: C4/C5, S2, MS01, PTS SSI or Sprocket)
 ```
 
-- The Toshiba has two FireWire ports. An owner reports they connect to "MCU1" and "MCU2" (medium confidence). Earlier research mentioned a FireWire cable from the MCU to the power supply unit (low confidence). A replacement must cover every link.
+- The Toshiba has two FireWire ports. An owner reports they connect to "MCU1" and "MCU2" (medium confidence). Jack Chauvel's guide describes one link going to the power unit, which **triggers the scanner's power-up when the PC is on**, and the other as the main data link between the image controller (scan head) and the scanner PC (medium confidence). A replacement must cover both links.
+- **Plugging a powered host into that FireWire link can switch the scanner on** (Chauvel: "Power on my Lenovo box, in doing so this powers up the scanner through the attached firewire"). Treat connecting the Linux PC as a power-on event, not a passive step.
+- In Chauvel's original setup the two links used two controllers (onboard port + add-in card). In his VM, one card with two ports worked. A small VIA card "without enough juice" failed: the host card probably must supply 6-pin bus power (medium confidence).
 - Internal scanner links use RS422 and similar (not reachable from the PC).
 - The CCD makes micro-movements: the same image is scanned once or up to 8 times while shifting the CCD. Scanning 4 positions and assembling on the PC gives about 2x linear resolution.
 - The image box has GPA23 boards with DSPs. Scanners with two GPA23 boards are faster. Probable bottleneck of about 3.4 s/frame (low-medium confidence).

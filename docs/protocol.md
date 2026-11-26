@@ -10,7 +10,10 @@ Status (2026-11-25): **nothing observed yet.** Fill in during Phases 0, 1 and 2.
 |---|---|---|---|---|---|---|
 | FW-A | Scanner PC port ? | MCU1 | ? | ? | Owner report, Reddit 1m6cqib (journal 2026-11-26) | medium |
 | FW-B | Scanner PC port ? | MCU2 | ? | ? | Same | medium |
-| FW-? | MCU | Power supply unit | ? | ? | Earlier research; may be the same link as one above | low |
+| FW-? | Scanner PC port ? | Power unit (triggers scanner power-up when the host is on) | ? | ? | Chauvel guide; probably one of the two links above | medium |
+| FW-? | Scanner PC port ? | Image controller on the scan head (main data link) | ? | ? | Chauvel guide; probably the other link | medium |
+
+Notes: in Chauvel's original setup the two links used two controllers; one two-port card also worked, so one bus is enough (medium confidence).
 
 Questions:
 - How many 1394 controllers does the scanner PC have (one bus or two)?

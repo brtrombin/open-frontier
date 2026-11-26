@@ -117,7 +117,7 @@ Outline (the detailed steps will be written after 1.0 is reviewed, because they 
 
 Outline:
 1. Everything off. Disconnect the Toshiba's FireWire cable(s) and connect the Linux PC instead, following the Phase 0 photos.
-2. Power on the scanner, wait about 3 minutes (as with the original system), then boot the Linux PC.
+2. Power-on order. In Jack Chauvel's setup, powering the host PC is what switches the scanner on, through the FireWire link to the scanner's power unit; he then waits about 3 minutes before starting the scanner software (medium confidence). So expect **the scanner to power up as soon as the Linux PC boots**, even with `firewire_ohci` not loaded (the card's PHY and bus power are active without a driver; medium confidence). Boot the Linux PC, wait about 3 minutes, and only then load the driver in step 5. Confirm the exact order seen in the Phase 0 boot video before doing this.
 3. Terminal 1: `sudo journalctl -kf`
 4. Terminal 2: enable the FireWire tracepoints, so that every packet Linux sends or receives is logged:
    ```bash

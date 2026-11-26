@@ -21,6 +21,8 @@ Checked against the Linux kernel tree (master, 7.4-rc4) on 2026-11-25. Always co
 | Alternative | TI **XIO2213B** | `104c:823f` | FireWire 800 (1394b) controller. Cards usually have 9-pin ports, and some add one 6-pin port. A 9-pin to 6-pin bilingual cable connects to 1394a devices |
 | VM path only | VIA VT6306/6307/6308 | `1106:3044` | The only chip validated in Chauvel's ESXi passthrough guide. On PCIe cards it sits behind a PCIe-to-PCI bridge. Do not use on AMD Ryzen with an ASM1083/1085 bridge |
 
+**Bus power is required (medium confidence).** In Jack Chauvel's guide, a small VIA card failed because it did not have "enough juice", while a larger VT6306/7/8 card worked; one of the scanner's FireWire links goes to its power unit and triggers power-up. Choose a card with 6-pin ports that supply bus power, ideally with an auxiliary power connector (Molex, SATA or floppy) on the card, and plug that connector in.
+
 Avoid: cards that only list "1394 OHCI" without a chip name, and Ricoh/JMicron/O2 combo cards (the kernel has quirks for them, so they are less predictable).
 
 ## 3. Bus sniffer for nosy (buy 1, 2 if you find them)
