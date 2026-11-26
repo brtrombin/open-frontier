@@ -1,6 +1,6 @@
-// Package synth builds synthetic spool files for tests. They follow our own
-// reading of the formats (docs/protocol.md), so tests check the code against
-// that reading, not against real scanner files.
+// Package synth builds synthetic spool files, for the tests and for the
+// simulate command. They follow our own reading of the formats
+// (docs/protocol.md), not real scanner files.
 package synth
 
 import (

@@ -20,7 +20,7 @@ import (
 	"github.com/brtrombin/open-frontier/src/internal/spool"
 )
 
-const version = "0.1.0"
+const version = "0.2.0"
 
 const usage = `openfrontier %s: read-only tools for Fuji Frontier SP-3000 spool files
 
@@ -28,6 +28,9 @@ Usage:
   openfrontier inspect <order folder | file.RAW | file.INF> [--inf-dir DIR] [--inf FILE]
   openfrontier convert <order folder> --out DIR [options]
   openfrontier compare <file.RAW> <Fuji output of the same frame> [--inf FILE]
+  openfrontier watch <spool folder> --out DIR [options]
+  openfrontier simulate <test folder> [--frames 4] [--orders 1] [--size small|normal|large]
+  openfrontier db <computer> [--db-pipe]
   openfrontier firewire
   openfrontier version
 
@@ -43,6 +46,25 @@ convert options:
   --inf-dir DIR                      where the .INF files are when they are not
                                      beside the .RAW files (OutSpool)
   --overwrite                        replace output files that already exist
+
+watch: delivers each finished order as a folder of JPEG/TIFF files in --out,
+named after the order, and never changes the spool. Takes the convert options
+(except --overwrite), plus:
+  --db-host COMPUTER                 read OrderTable.Status there and read an
+                                     order only when it says the scan finished
+                                     (needed for a live spool)
+  --db-pipe                          use the named pipe instead of TCP (Windows)
+  --db-user, --db-password, --db-name, --db-port
+                                     default: the factory login, FDIA_DB, 1433
+  --quiet N                          without --db-host: read an order after N
+                                     seconds without changes (default 150);
+                                     only allowed on copies and test folders
+  --poll N                           seconds between looks (default 5)
+  --once                             one look, then exit
+
+simulate: writes synthetic orders into a test folder the way a scanner does,
+to try watch without a scanner. db: checks that the order database can be
+read from this PC and lists the latest orders.
 
 Safety: this program never writes to, renames in or deletes from the folders
 it reads. It refuses to read a folder that may be the scanner's live spool (a
@@ -99,6 +121,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 		err = cmdConvert(args[1:], stdout, stderr)
 	case "compare":
 		err = cmdCompare(args[1:], stdout)
+	case "watch":
+		err = cmdWatch(args[1:], stdout)
+	case "simulate":
+		err = cmdSimulate(args[1:], stdout)
+	case "db":
+		err = cmdDB(args[1:], stdout)
 	case "firewire":
 		err = cmdFirewire(stdout)
 	case "version", "--version":
@@ -447,36 +475,9 @@ func cmdConvert(args []string, out, errOut io.Writer) error {
 	if len(pos) != 1 || *outDir == "" {
 		return usageError("convert needs one order folder and --out DIR")
 	}
-	opts := convertOptions{quality: *quality, rotate: strings.ToLower(*rotate), overwrite: *overwrite}
-	switch strings.ToLower(*format) {
-	case "jpeg", "jpg":
-		opts.format, opts.ext = "jpeg", ".jpg"
-	case "tiff", "tif":
-		opts.format, opts.ext = "tiff", ".tif"
-	default:
-		return usageError("--format must be jpeg or tiff")
-	}
-	switch strings.ToLower(*tiffComp) {
-	case "none":
-	case "deflate":
-		opts.deflate = true
-	default:
-		return usageError("--tiff-compression must be none or deflate")
-	}
-	switch opts.rotate {
-	case "inf", "none", "0", "90", "180", "270":
-	default:
-		return usageError("--rotate must be inf, none, 90, 180 or 270")
-	}
-	switch strings.ToLower(*channels) {
-	case "rgb":
-	case "bgr":
-		opts.bgr = true
-	default:
-		return usageError("--channel-order must be rgb or bgr")
-	}
-	if opts.quality < 1 || opts.quality > 100 {
-		return usageError("--quality must be between 1 and 100")
+	opts, err := makeConvertOptions(*format, *quality, *tiffComp, *rotate, *channels, *overwrite)
+	if err != nil {
+		return err
 	}
 	src := pos[0]
 	for _, p := range []string{src, *infDir} {
@@ -525,6 +526,41 @@ func cmdConvert(args []string, out, errOut io.Writer) error {
 		return errSomeFailed
 	}
 	return nil
+}
+
+func makeConvertOptions(format string, quality int, tiffComp, rotate, channels string, overwrite bool) (convertOptions, error) {
+	opts := convertOptions{quality: quality, rotate: strings.ToLower(rotate), overwrite: overwrite}
+	switch strings.ToLower(format) {
+	case "jpeg", "jpg":
+		opts.format, opts.ext = "jpeg", ".jpg"
+	case "tiff", "tif":
+		opts.format, opts.ext = "tiff", ".tif"
+	default:
+		return opts, usageError("--format must be jpeg or tiff")
+	}
+	switch strings.ToLower(tiffComp) {
+	case "none":
+	case "deflate":
+		opts.deflate = true
+	default:
+		return opts, usageError("--tiff-compression must be none or deflate")
+	}
+	switch opts.rotate {
+	case "inf", "none", "0", "90", "180", "270":
+	default:
+		return opts, usageError("--rotate must be inf, none, 90, 180 or 270")
+	}
+	switch strings.ToLower(channels) {
+	case "rgb":
+	case "bgr":
+		opts.bgr = true
+	default:
+		return opts, usageError("--channel-order must be rgb or bgr")
+	}
+	if quality < 1 || quality > 100 {
+		return opts, usageError("--quality must be between 1 and 100")
+	}
+	return opts, nil
 }
 
 func convertFrame(out io.Writer, p spool.FramePair, order, target string, used map[string]bool, o convertOptions) (bool, error) {

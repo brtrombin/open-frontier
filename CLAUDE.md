@@ -40,7 +40,7 @@ Final interface: a web application served by that PC, usable from Windows, Mac o
 - Correction (owner's own words, 2026-11-27): he does **not** run his scanner PC in a VM. The only VM is the server, at a lab, and he finds VMs slow and unpleasant. The earlier note that both PCs run on ESXi was our misunderstanding. How his scanner PC runs today (the physical Toshiba or not) is to be seen on a visit.
 - He says that each time a scanner PC system is brought up on the scanner, it redoes the parameters for the next system, which is why he cannot simply connect another system (for example an old disk image) to his scanner. So the scanner PC and the scanner exchange and rewrite setup data when they are paired (medium confidence on the mechanism). Never connect any system to his scanner without his presence and approval.
 - He offered to show the setup in person. The owner authorized tests, passive captures and analysis of his own disk images (2026-11-26). Everything from his system is private and never enters git.
-- `docs/bench-esxi.md` applies only to a server VM on ESXi, not to the scanner PC.
+- The near-term product follows the same concept as Sprocket's "Setup A": the scanner PC stays as it is, and our program on a modern PC reads finished orders across the network and delivers them, named and converted, to an SSD or NAS folder (`openfrontier watch`). The ESXi route is dropped.
 
 ## What is known about the hardware (research of 2026-11-25)
 
@@ -91,7 +91,7 @@ See `docs/plan-review.md` for the reviewed order (revised 2026-11-26). Summary:
 
 - **0.** Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology). For the friend's system: to be done on a visit.
 - **S1.** Decode finished spool orders (`.RAW` + `.INF`) to JPEG/TIFF on Windows 10, offline, and compare with the Fuji output. Code in `src/`, to be checked on real files (`docs/windows-test-plan.md`).
-- **S2.** Watch the spool, reading only finished orders (`Status == 2`). **S3.** Stand in for FDIA_DB and retire the front-end server.
+- **S2.** Hands-off delivery (`openfrontier watch`): read an order only when `Status == 2`, deliver it to an SSD or NAS. Written and tested with a simulated scanner (`docs/windows-test-plan.md`, T1); next is the owner's system (T2 to T4). **S3.** Stand in for FDIA_DB and retire the front-end server.
 - **1.** Identify without touching: 1a passive host-side logging of the original system (on a cloned disk or a VM copy); 1b a Linux host (live USB), read-only, with drivers that transmit blacklisted.
 - **2.** Observe the protocol: static analysis of the owner's disk image (Ghidra), bus captures, comparison with menu 2241 dumps.
 - **3.** Reproduce, starting with harmless reads, then init and a single low-resolution frame, each with explicit approval.

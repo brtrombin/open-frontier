@@ -50,7 +50,7 @@ Right-click My Computer > Properties > Hardware > Device Manager.
 
 It creates a folder named `collect-<computer name>-1` on the stick.
 
-**Scanner PC and server in virtual machines (ESXi):** give the USB stick to each VM in turn (Host Client: the VM, Edit settings, Add other device, USB device; if the VM has no USB controller, add a USB 2.0 one), run the matching file inside the VM, then remove the device again. Also send each VM's `.vmx` file, the ESXi version and the FireWire card's name (`docs/bench-esxi.md`, B2).
+**Scanner PC or server in a virtual machine:** connect the USB stick to that VM (a USB 2.0 controller: Windows 2000 and XP have no USB 3 driver), run the matching file inside it, then disconnect it again.
 
 ### 6. Run `server-xp.bat` on the server
 

@@ -216,6 +216,8 @@ Key facts:
 - **Port conflict is fatal by design**: if the port cannot be bound (usually because a real SQL Server still holds it), the emulator refuses to start, to avoid the scanner talking to the wrong server while everything looks healthy (high confidence).
 - **The scanner's SQL queries are fixed inside its client library.** Any database emulator must present the schema layout the client expects (high confidence).
 
+**Another route, from Sprocket's database setup guide** (medium confidence; that guide says its own last step "has not been exercised end to end"): instead of emulating the server, stand up a modern SQL Server (default instance, Mixed Mode authentication, TCP 1433) with an empty database of the same schema, point the export software at it, and let that software's own setup screens fill the configuration tables (`DeviceTable`, `SizeTable`, `ServiceTable`, `CombinationTable`, `ColorSpace`, `FileFormat`), which no outside tool can know. The order counter starts at zero there, so old order history is not carried across.
+
 **Implication for open-frontier** (medium-high confidence): to replace the Windows server completely, we need to serve TDS on port 1433, respond to the scanner's fixed SQL queries, and serve the device INF files from a network path the scanner can reach. This is a known, documented protocol. No proprietary wire format on the server side.
 
 ### 9.11 SMB mount requirements for Linux

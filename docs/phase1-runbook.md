@@ -10,7 +10,7 @@ Applies to Debian 13 or Ubuntu 24.04 LTS. Commands are run as a normal user with
 
 ---
 
-> **On the Windows 10 PC** (the project's target since 2026-11-26): the machine check is `openfrontier firewire` with no scanner connected (`docs/windows-test-plan.md`, T0). **On the ESXi host** of the system we work on, the FireWire card already sits in that machine: boot it from the Linux live USB instead of ESXi, and ESXi and the VMs stay untouched. Either way, nothing is installed on the existing disks. A live system forgets `/etc/modprobe.d` at every boot and may load `firewire_ohci` before you can stop it: boot it with `modprobe.blacklist=firewire_ohci` added to the kernel command line, then create the file of step 1.0.2 in the running session (skip `update-initramfs` and the reboot) before loading the driver by hand.
+> **On the Windows 10 PC** (the project's target since 2026-11-26): the machine check is `openfrontier firewire` with no scanner connected (`docs/windows-test-plan.md`, T0). Nothing is installed on the existing disks. A live system forgets `/etc/modprobe.d` at every boot and may load `firewire_ohci` before you can stop it: boot it with `modprobe.blacklist=firewire_ohci` added to the kernel command line, then create the file of step 1.0.2 in the running session (skip `update-initramfs` and the reboot) before loading the driver by hand.
 
 ## 1.0 Prepare the Linux PCs (no scanner connected)
 

@@ -29,24 +29,27 @@ No open-source project for any Frontier SP scanner was found (GitHub and web sea
 
 One computer we already have, running Windows 10 natively and standalone, with a FireWire port and a web interface. In the order we expect to get there:
 
-1. Decode the spool files the scanner PC writes (`.RAW` + `.INF`) and export JPEG/TIFF. **Started**, see below.
-2. Replace the front-end server: watch the spool safely and stand in for the order database (FDIA_DB).
+1. Decode the spool files the scanner PC writes (`.RAW` + `.INF`) and export JPEG/TIFF. **Written**, see below.
+2. Replace the front-end server: deliver every finished order hands-off to an SSD or NAS (**written**), then stand in for the order database (FDIA_DB).
 3. Speak the SP-3000 FireWire protocol, after observing the Fuji software's own traffic, and retire the Toshiba.
 4. Capture raw CCD data with the pixel-shift positions and the infrared channel; calibrate, assemble, invert and color-correct on the PC.
 5. Carrier control (frame detection, whole-roll scans, XPan), queue, web UI, 16-bit TIFF and JPEG export.
 
 ## The Windows 10 program
 
-`openfrontier.exe` is one file with nothing to install. It reads finished spool orders and never talks to the scanner.
+`openfrontier.exe` is one file with nothing to install. Its main job is hands-off delivery, the same concept as Sprocket: the scanner PC stays as it is, and every order it finishes lands on an SSD or NAS as a folder of JPEG or TIFF files named after the order. It never talks to the scanner.
 
 ```text
+openfrontier watch <spool> --out DIR          deliver every finished order, hands-off
+openfrontier simulate <test folder>           write synthetic orders like a scanner, to try watch
+openfrontier db <computer> --db-pipe          check the order database can be read (read-only)
 openfrontier inspect <order folder>           report the frames, the RAW header and every .INF field
-openfrontier convert <order folder> --out DIR write JPEG, or TIFF with --format tiff
+openfrontier convert <order folder> --out DIR convert one order by hand
 openfrontier compare <frame.RAW> <fuji.jpg>   check our decode against the Fuji software's output
 openfrontier firewire                         list the FireWire hardware Windows sees (read-only)
 ```
 
-It refuses to read a folder that may be the scanner's live spool (a network path, or a folder named InSpool, OutSpool or ImgExchange) unless told the order is finished. On Windows it opens every spool file with `FILE_SHARE_DELETE`, the documented way to read without blocking the Fuji software. Build it with Go 1.24 or later from `src/`. How to test it: [docs/windows-test-plan.md](docs/windows-test-plan.md).
+`watch` reads a live spool only when the order database says the scan finished, and never deletes or changes anything in it. The other commands refuse a folder that may be the scanner's live spool (a network path, or a folder named InSpool, OutSpool or ImgExchange) unless told the order is finished. On Windows it opens every spool file with `FILE_SHARE_DELETE`, the documented way to read without blocking the Fuji software. Build it with Go 1.24 or later from `src/`. How to test it: [docs/windows-test-plan.md](docs/windows-test-plan.md).
 
 ## Plan
 
@@ -54,7 +57,7 @@ It refuses to read a folder that may be the scanner's live spool (a network path
 |---|---|---|
 | 0 | Preserve the original system: disk clones, configuration, calibration data, reference scans | in progress |
 | S1 | Decode finished spool orders (RAW/INF) to JPEG/TIFF, natively on Windows 10 | written, to be checked on real files |
-| S2 | Watch the spool safely, reading order status from FDIA_DB | not started |
+| S2 | Hands-off delivery: watch the spool, read an order once FDIA_DB says it is finished | written, tested with a simulated scanner |
 | S3 | Stand in for FDIA_DB and retire the front-end server | not started |
 | 1a | Observe the original system passively, logging from inside Windows 2000 | not started |
 | 1b | Identify FireWire nodes from the new PC, read-only | not started |

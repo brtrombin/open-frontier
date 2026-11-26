@@ -105,15 +105,13 @@ Jack Chauvel runs the scanner PC's software in a VM on ESXi, with the FireWire c
 
 ## The system we work on (added 2026-11-26, evening)
 
-### 17. A working ESXi system as the bench (medium-high)
+### 17. The ESXi bench (dropped 2026-11-27)
 
-The only SP-3000 in the project belongs to the user's friend and runs virtualised on ESXi along Chauvel's guide. With the owner's authorization, that gives us:
-- cold copies of both VMs, which are the undo for any change;
-- real spool files and the front-end's output of the same orders, for S1;
-- passive recordings of the network between the two VMs, taken on the host with `pktcap-uw`: the spool writes and, if the order database is on the server VM, its traffic too, for S2 and S3;
-- a place for the Phase 1a logging, inside the scanner PC VM.
+We first understood that the owner ran both PCs as VMs on ESXi and planned to use that as a test bench. He does not: his scanner PC is not virtualised, only a server at a lab is, and he finds VMs slow. The near-term product follows Sprocket's "Setup A" concept instead (point 18).
 
-ESXi takes no snapshots of a VM with a passed-through PCI device (medium-high confidence), so cold copies replace snapshots. Procedures: `docs/bench-esxi.md`.
+### 18. Near-term product: hands-off delivery from the spool (medium-high)
+
+The scanner PC stays as it is. A modern PC reads each finished order across the network, converts it and delivers it as a named folder of JPEG/TIFF files on an SSD or NAS (`openfrontier watch`). It is what Sprocket does, here as open code. An order is only read once `OrderTable.Status` says the scan finished, which needs read access to the order database: by named pipe from Windows, which MSDE accepts by default (no change on the scanner PC), or by TCP, which MSDE ships disabled. Windows suits this better than a Mac: both can read an SMB1 share (a Mac needs `protocol_vers_map=1` in `/etc/nsmb.conf`, and Apple is retiring SMB1), but only Windows has the named-pipe route to the database. Our program never deletes spool folders, so who cleans the scanner PC's InSpool today must be checked on the visit.
 
 ## Server-side safety rules (added 2026-11-26)
 
@@ -131,10 +129,10 @@ Supersedes the order below. The spool side comes first, because its formats are 
 
 1. **Phase 0**: preserve and document. Still first for anything that touches the original system.
 2. **S1**, now: decode finished spool orders on Windows 10, offline, and compare with the Fuji output (`docs/windows-test-plan.md`). This confirms the RAW and INF formats on real files.
-3. **S2**: a watcher that reads only finished orders (`OrderTable.Status == 2`), opening files with `FILE_SHARE_DELETE`. Needs read access to FDIA_DB and the SMB1 client on the Windows 10 PC, with the equipment owner's go-ahead.
+3. **S2**: a watcher that reads only finished orders (`OrderTable.Status == 2`), opening files with `FILE_SHARE_DELETE` (point 18). Written (`openfrontier watch`), tested with synthetic orders; next is the owner's system, with his go-ahead.
 4. **S3**: stand in for FDIA_DB over TDS, then retire the front-end server. Needs captures of the scanner PC's own SQL traffic first.
 5. **Phase 2c**, in parallel: static analysis of the owner's disk image.
-6. **Phase 1a** inside the DI VM, then **1b** from a Linux live USB on the PC that carries the scanner's FireWire link (for the friend's system, the ESXi host booted from the USB stick instead of ESXi), then **Phase 2**, the abort and recovery procedure, and **Phase 3**, as below.
+6. **Phase 1a** on a copy of the scanner PC's disk, then **1b** from a Linux live USB on a PC with a FireWire port, then **Phase 2**, the abort and recovery procedure, and **Phase 3**, as below.
 7. The Windows FireWire driver (point 15), once the protocol is known.
 
 ## Earlier proposed order (2026-11-25, superseded)

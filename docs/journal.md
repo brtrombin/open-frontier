@@ -2,6 +2,21 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-27 (2): hands-off delivery, the Sprocket concept as open code
+
+**Decision (owner)**: the ESXi route is dropped; the near-term product is "like Sprocket in concept": the scanner PC stays as it is, and every finished order lands on an SSD as a named folder of JPEG/TIFF files.
+
+**Done**
+- `openfrontier watch`: watches the spool folder, reads an order only when `OrderTable.Status` says the scan finished (or, on copies and test folders only, when it has stopped changing for `--quiet` seconds), copies it to local staging through shared reads, converts it, and moves it into `<out>/<order number>/` in one rename. It never changes the spool, remembers what it delivered (`<out>/.openfrontier/state.json`, keyed by folder name and first frame time, because FDIA_DB recycles folder numbers), retries a failing order three times, logs outages once, and writes a heartbeat every minute.
+- `openfrontier simulate`: writes synthetic orders into a test folder the way a scanner does (each RAW in pieces, its INF after it), so the whole chain can be tried on Windows without a scanner. It refuses any folder that looks like a real spool.
+- `openfrontier db`: reads the order database (version and latest orders), by named pipe on Windows (`--db-pipe`), which MSDE accepts by default, or by TCP. SELECT with NOLOCK only.
+- `internal/fdia` on `github.com/microsoft/go-mssqldb` v1.9.7, the last version for Go 1.24. That driver supports SQL Server 2005 and later; MSDE is SQL Server 2000, so `db` is the test (medium-low confidence that it connects until then).
+- `docs/windows-test-plan.md` rewritten around T1 (simulated scanner), T2 (real files, offline), T3 (database, on a visit), T4 (live). ESXi documents removed; `plan-review.md` points 17 (dropped) and 18 (the product).
+
+**Evidence**: unit and end-to-end tests (`go test ./...`), including an order that only becomes readable when a fake database switches it to status 2, a recycled folder number, a short frame that ends as "failed" without a partial delivery, and the spool left byte-for-byte unchanged. A live run on Linux: `simulate` wrote a 3-frame order at real size while `watch` waited and then delivered it.
+
+**From Sprocket's documentation** (pasted by the owner; read, not copied): its setup "A" is the same shape as ours. Two differences we keep on purpose: Sprocket deletes processed spool folders (so it needs a writable mount), ours never does, so who cleans InSpool on the owner's system must be checked; and Sprocket can fall back to "the folder stopped changing", ours refuses that on a live spool. Its route for a fresh database is in `protocol.md` 9.10.
+
 ## 2026-11-27 (1): correction, the scanner PC is not virtualised
 
 **From the friend who owns the scanner** (relayed as a chat screenshot, kept private)
