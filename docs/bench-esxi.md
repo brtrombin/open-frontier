@@ -1,5 +1,7 @@
 # Working on an SP-3000 virtualised on ESXi
 
+> Correction (2026-11-27): the owner's scanner PC is not virtualised; only a server runs as a VM, at a lab. The scanner PC parts of this guide do not apply to his system. Kept for systems set up along Chauvel's guide.
+
 For the system we work on: an SP-3000 whose scanner PC and server run as two virtual machines on VMware ESXi, set up along Jack Chauvel's guide. The owner authorized tests, passive captures and analysis of his own disk images (2026-11-26). Everything collected from his system is private: it is shared in the project chat, never on GitHub.
 
 Names used here:

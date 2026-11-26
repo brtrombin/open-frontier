@@ -2,6 +2,19 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-27 (1): correction, the scanner PC is not virtualised
+
+**From the friend who owns the scanner** (relayed as a chat screenshot, kept private)
+- He does not use VMs, except one at a lab that is only the server. He finds VMs very slow.
+- He may still have a scanner PC system (disk image).
+- He cannot connect another scanner PC system to his scanner because each time a system is brought up, it redoes the parameters for the next system.
+- He invited us to visit so he can show the setup.
+
+**What it means**
+- The entries of 2026-11-26 (9) and (10) assumed both PCs ran as VMs on ESXi. That was wrong. `bench-esxi.md` now applies only to a server VM.
+- Pairing a scanner PC system with the scanner rewrites setup data (medium confidence). This supports the open question of whether calibration is uploaded at init, and it is a new hazard: never bring up any system on his scanner without him. For the open product it means a first-start step that reads or establishes the pairing parameters, done the way the Fuji software does it.
+- Next: a visit, to see the hardware, cabling, how the system starts, and to run the collection kit on whatever scanner PC and server he uses today.
+
 ## 2026-11-26 (11): review of the collection kit and the support files
 
 **Goal**: one run of the kit on the owner's two VMs should answer everything we can learn without touching the scanner, so we do not have to ask him again.

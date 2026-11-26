@@ -34,13 +34,13 @@ Final interface: a web application served by that PC, usable from Windows, Mac o
 - **Proprietary and private data never enters the repository.** Fujifilm binaries, firmware, manuals, registry/ini exports, raw dumps (.bin/.tag/.RAW/.INF), screenshots of Fujifilm software, and anything collected from third-party machines (such as the user's friend Marcelo) stay outside git. The user shares them privately in the chat. Only facts we derived ourselves, in our own words, are committed. When proprietary material shows up, point it out to the user explicitly.
 - Write every procedure so that a non-technical scanner owner can follow it: what to do, what not to touch, how to undo it. The long-term aim is steps anyone with an SP-3000 can follow.
 
-## The system we work on (2026-11-26)
+## The system we work on (2026-11-26, corrected 2026-11-27)
 
 - The only SP-3000 in the project belongs to the user's friend. The user has no scanner.
-- It runs virtualised along Jack Chauvel's guide on VMware ESXi: a "DI" VM (the scanner PC, Windows 2000, Fuji scanner software, the FireWire card passed through to it) and a "PIC" VM (the server, Windows XP, front-end software, probably C4/C5, medium confidence). It works, but setting it up was hard.
-- The physical Toshiba still works and stays untouched as the fallback. A Clonezilla image of its disk exists.
-- The owner authorized tests, passive captures and analysis of his own disk images (2026-11-26). Everything from his system is private and never enters git, and his DI VM must never be connected to another scanner (per-scanner calibration).
-- ESXi takes no snapshots of a VM with a passed-through PCI device (medium-high confidence), so the undo for any change to the DI VM is a cold copy made beforehand. Procedures: `docs/bench-esxi.md`.
+- Correction (owner's own words, 2026-11-27): he does **not** run his scanner PC in a VM. The only VM is the server, at a lab, and he finds VMs slow and unpleasant. The earlier note that both PCs run on ESXi was our misunderstanding. How his scanner PC runs today (the physical Toshiba or not) is to be seen on a visit.
+- He says that each time a scanner PC system is brought up on the scanner, it redoes the parameters for the next system, which is why he cannot simply connect another system (for example an old disk image) to his scanner. So the scanner PC and the scanner exchange and rewrite setup data when they are paired (medium confidence on the mechanism). Never connect any system to his scanner without his presence and approval.
+- He offered to show the setup in person. The owner authorized tests, passive captures and analysis of his own disk images (2026-11-26). Everything from his system is private and never enters git.
+- `docs/bench-esxi.md` applies only to a server VM on ESXi, not to the scanner PC.
 
 ## What is known about the hardware (research of 2026-11-25)
 
@@ -89,10 +89,10 @@ Post "Frontier SP-3000 Modernisation", 2026-11-15, Facebook group "Fuji Frontier
 
 See `docs/plan-review.md` for the reviewed order (revised 2026-11-26). Summary:
 
-- **0.** Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology). For the friend's system mostly done: the Clonezilla image, the untouched physical Toshiba, and cold copies of the VMs (`docs/bench-esxi.md`, B0).
+- **0.** Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology). For the friend's system: to be done on a visit.
 - **S1.** Decode finished spool orders (`.RAW` + `.INF`) to JPEG/TIFF on Windows 10, offline, and compare with the Fuji output. Code in `src/`, to be checked on real files (`docs/windows-test-plan.md`).
 - **S2.** Watch the spool, reading only finished orders (`Status == 2`). **S3.** Stand in for FDIA_DB and retire the front-end server.
-- **1.** Identify without touching: 1a passive host-side logging inside the DI VM, after a cold copy of it; 1b a Linux host (a live USB booted on the ESXi host instead of ESXi), read-only, with drivers that transmit blacklisted.
+- **1.** Identify without touching: 1a passive host-side logging of the original system (on a cloned disk or a VM copy); 1b a Linux host (live USB), read-only, with drivers that transmit blacklisted.
 - **2.** Observe the protocol: static analysis of the owner's disk image (Ghidra), bus captures, comparison with menu 2241 dumps.
 - **3.** Reproduce, starting with harmless reads, then init and a single low-resolution frame, each with explicit approval.
 - **4.** Image from raw CCD data: dark/flat calibration, pixel shift, inversion and color (CMYD), IR, export.
