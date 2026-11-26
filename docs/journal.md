@@ -2,16 +2,21 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
-## 2026-11-26 (end of day): state of the two systems we can use
+## 2026-11-26 (end of day): the system we work on
+
+Corrected the same evening: a first version of this entry described the Toshiba and the XP server below as the project owner's own system. The owner then said the work is being done for a friend, so this entry now describes the friend's system. Whether the owner also has an SP-3000 is to be confirmed.
 
 **From the project owner**
-- The owner's own system works: the Toshiba scanner PC (Windows 2000) and a Windows XP server, set up as in Jack Chauvel's original, pre-virtualisation description (DI = scanner PC, PIC = server, cabled directly). Which front-end software runs on the server is to be confirmed on its version screen; Chauvel's was C4/C5 (medium confidence that it is the same here).
-- A friend of the owner runs his SP-3000 virtualised along Chauvel's guide (two VMs on one host). It works, but he found the guide hard to follow.
+- The project is being done for a friend who runs an SP-3000. His system is set up along Jack Chauvel's guide: the scanner PC (Toshiba, Windows 2000, "DI") and a Windows XP server ("PIC"), virtualised as two VMs on one host. It works, but he found the guide hard to follow. The physical Toshiba still works.
+- He already imaged the Toshiba disk with Clonezilla, for the virtualisation.
+- The server software is to be confirmed on its version screen; Chauvel's was C4/C5 (medium confidence that it is the same).
+- Long-term aim: steps that anyone with an SP-3000 can follow.
 
 **What it means**
-- Phase 0 and the S1 test (`windows-test-plan.md`, T1) can both run on the owner's own system, so format validation does not depend on anyone else.
-- If the server runs C4/C5, its exports are JPG, FPX or BMP, never TIFF (`protocol.md` 9.5); `openfrontier compare` reads JPG and BMP.
-- The friend's VM images hold Fujifilm software, his scanner's calibration and his customers' orders. Possible uses, only with his consent and kept private: real spool files, his VM settings as a template, passive captures of his running system. Not to be used: his scanner PC VM on the owner's scanner (per-scanner calibration, possibly uploaded at init, medium confidence), or his copy for reverse engineering (only the owner's own disk image, per the project rules).
+- Phase 0 for his system is mostly done: the Clonezilla image, the physical Toshiba disk as an untouched fallback, and copies of the VM folders (made with the VMs off). Still to do: a second copy in another place, and the collection kit inside both VMs.
+- The S1 test (`windows-test-plan.md`, T1) can use his finished orders. If his server runs C4/C5, its exports are JPG, FPX or BMP, never TIFF (`protocol.md` 9.5); `openfrontier compare` reads JPG and BMP.
+- His VM images hold Fujifilm software, his scanner's calibration and his customers' orders: private, never in git. Any work on his equipment and software needs his explicit authorization (to be confirmed), and his scanner PC VM must never be connected to another scanner (per-scanner calibration, possibly uploaded at init, medium confidence).
+- Every procedure we write should be one a non-technical owner can follow: what to do, what not to touch, how to undo it.
 
 ## 2026-11-26 (latest): first program, natively on Windows 10
 
