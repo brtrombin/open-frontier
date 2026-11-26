@@ -83,6 +83,16 @@ Whatever machine we use must have a FireWire controller that Linux drives with `
 
 If the scanner MCU accepts high-level commands ("scan frame N at resolution R with 4 shift positions") and handles motors and pixel shift itself, the project is mostly protocol plus image processing. If the PC drives each step (CCD shift, LED timing, carrier moves), the project is much bigger and riskier. The config ROM unit directory (specifier ID, version) and the static analysis should answer this early.
 
+## Server-side safety rules (added 2026-11-26)
+
+Any future tool that touches InSpool or FDIA_DB must follow these, confirmed from real failures documented in Sprocket's user documentation:
+
+1. Never open InSpool files before `OrderTable.Status == 2`. A sharing violation aborts `ExecLSeqObj.exe` and wedges the scanner.
+2. Never delete spool folders. A missing folder produces Fuji error W-5302 ("insufficient disk space", which really means "folder is gone").
+3. Never write to `FDIA_DB`. The scanner manages its own state.
+4. Never run the collection kit during a scan.
+5. On Windows, open InSpool files with `FILE_SHARE_DELETE` (`FILE_SHARE_ALL`).
+
 ## Proposed order
 
 1. **Phase 0**: preserve and document, including the FireWire topology and calibration folders.

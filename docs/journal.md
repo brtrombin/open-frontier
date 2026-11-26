@@ -2,6 +2,28 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (later): facts from Sprocket 1.25.1 documentation and support tools
+
+**Read**: the plain-text documentation (`docs/*.md`, `sprocket.ini.example`) and the `tools/inf_parser.py` support script shipped with the Sprocket 1.25.1 macOS arm64 trial build by Boutique Film Lab. Only documentation and one plain-Python utility were read; the compiled executables were not opened, run or decompiled. The archive itself stays outside git (`.tar.gz` is already in `.gitignore`).
+
+**Key findings**
+
+- **The RAW already has the Fuji color rendering.** The documentation states: "the SP-3000 bakes its color rendering into the RAW, so the default decode already is the Frontier look." A 3D LUT is only needed for a *different* grade. This partially answers our open question about where Image Intelligence runs: the processing happens before the data reaches InSpool. High confidence for the RAW content; medium confidence for the exact stage.
+- **DIPP .INF format fully decoded.** The .INF is a typed key/value record ("Digital Imaging Processing Protocol"): NUL-terminated ASCII key, then `[u16 size][u16 type][u32 count][value]`. Type codes: 0x03 u32, 0x13/0x1013 u32 array, 0x1F UTF-16LE string, 0x40 FILETIME. Known keys include `00_MODEL_NAME`, `00_SERIAL_NO`, `02_FRAME_NUMBER_STRING`, `02_ROTATION_FOR_PROPER_RECTANGLE`, `02_FILE_SIZE` (H,W pixels), `02_SCANNING_DATE`, `01_FILMKIND`, `02_DX`, `02_MASKKIND`. This supersedes the earlier fixed-offset approach from fujisan. High confidence.
+- **RAW file size is arithmetic**: 32-byte header plus `width * height * 3` bytes of 8-bit RGB. Verified on 335 real archived frames. High confidence.
+- **Complete FDIA_DB schema**: 16 tables documented, including `ImageTable` with CMYD parameters (`Para_D/C/M/Y`, `Step_*`), auto-exposure (`AeHigh/AeMiddle/AeLow`), auto white balance (`AwbRed/AwbGreen/AweBlue`), `Aepaecn1-8` and `UsmParam`. `DESCRIPTOR.FDIAManageIDMAX` is the order counter, which recycles (MaxFdiaNo = 10000 on every system examined). `FileFormat` IDs: 1=BMP, 2=Exif, 3=FPX, 4=F-RAW, 5=JPEG, 6=TIFF, 7=PSD, 8=FEO. High confidence.
+- **Scanner output dimensions from SizeTable seed data**: 135N = 2504x3638, 135L = 5444x3650, 6X6N = 3036x3036, 6X6L = 3638x3638, 6X7L = 4452x3650, etc. The L sizes at W=3650 vs N sizes at W=3638 suggest different scan modes. High confidence.
+- **Standard devices**: PIC_SCAN, PIC_TIFF (output, F-RAW format), SP3000sRGB (output, service 1), SP3000_input, SP3000_F1, SP3000_F2, PRINT (input). High confidence.
+- **Spool path is a registry key**: `HKLM\SOFTWARE\FUJIFILM\FDIA\InputSpool` / `OutputSpool`. Confirmed on FDIA V5.5. SP-500 uses `SOFTWARE\FUJIFILM\FE\KIOSK\SPOOLPATH`. High confidence.
+- **InSpool/OutSpool split depends on software version**: SSI-era has .INF beside .RAW in InSpool; MS01-era puts .RAW in InSpool (8-digit padding) and .INF in OutSpool (6-digit padding). Medium confidence.
+- **Safety rules confirmed as observed failures**: ExecLSeqObj.exe aborts on sharing violations from concurrent reads; FILE_SHARE_DELETE is mandatory on Windows; deleting folders causes real hangs; W-5302 means "folder is gone". High confidence.
+- **F-DIA client library dialects**: "41" (SSI-era) and "45" (MS01-era). The scanner's SQL queries are fixed inside its client library. Medium confidence.
+- **Scanner releases itself**: verified by scanning with SSI stopped. The SP-3000 sets Status=2 and clears "Printing External File" with no importer running. High confidence.
+
+**What was NOT done**: the compiled executables (Sprocket, Wizard, Dashboard) were not decompiled, reverse-engineered or run. The color processing pipeline was not extracted. The user asked to decompile them, but this was declined: the software is licensed (US$899/scanner, 30-day trial), no source license is included, and copying the color pipeline into a GPL repository would infringe Boutique Film Lab's copyright.
+
+**Changes made**: `docs/protocol.md` sections 9 (major expansion) and 10 (open questions updated), `CLAUDE.md` (server-side safety rules), `docs/plan-review.md` (server-side safety rules), `collect/scanner-pc-win2000.bat` (Fujifilm registry export, InSpool/OutSpool/ImgExchange listing, safety warning), `collect/server-xp.bat` (same), `collect/README.md` (safety warning, updated command lists), `docs/sources.md` (Sprocket credit), `docs/journal.md` (this entry).
+
 ## 2026-11-26 (later): research on "standalone" SP-3000 projects
 
 **Searched**: web (standalone kits, software, services, Mac/Linux use) and GitHub (repositories and code: "sp3000", "InSpool frontier", "SP3000 frontier", "frontier ms01", "fujiRawConvert" and others). Vendor sites (Sprocket, Fotronix, minilablaser, Trichroma Lab and others) and forums (minilabhelp, Facebook, Reddit) could not be opened from the research environment, so their details come from search snippets only (medium confidence).

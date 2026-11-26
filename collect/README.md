@@ -12,6 +12,8 @@ If you run a working Frontier SP-3000, an hour of your time gives this project f
 
 Rule for every step: **do not change any setting.** When a window offers OK/Apply/Save, close it with **Cancel**.
 
+**IMPORTANT: run the scripts only when no scan is running.** Reading InSpool files during a scan can cause a sharing violation that aborts the scanner software and wedges the scanner. Wait until the scanner is idle.
+
 ## Steps
 
 ### 1. Photos (everything powered off)
@@ -81,8 +83,8 @@ None of this is ever committed to the open-frontier repository. The project only
 
 ## What the scripts run
 
-Scanner PC (Windows 2000): `ver`, `set`, `ipconfig /all`, `net share`, `net use`, `net config`, `net start`, `dir`, `regedit /e` (export, read-only), `xcopy` of `*.ini`/`*.cfg` from Fujifilm/Frontier folders only, `msinfo32 /report`.
+Scanner PC (Windows 2000): `ver`, `set`, `ipconfig /all`, `net share`, `net use`, `net config`, `net start`, `dir` (including `D:\InSpool`, `D:\OutSpool`, `D:\ImgExchange` by name), `regedit /e` (export, read-only, including `HKLM\SOFTWARE\FUJIFILM` explicitly), `xcopy` of `*.ini`/`*.cfg` from Fujifilm/Frontier folders only, `msinfo32 /report`.
 
-Server (Windows XP and later): the same, plus `systeminfo`, `sc query`, `driverquery /v`, `reg query` and `reg export` (read-only).
+Server (Windows XP and later): the same, plus `systeminfo`, `sc query`, `driverquery /v`, `reg query` (including `HKLM\SOFTWARE\FUJIFILM` and related keys) and `reg export` (read-only), and `dir` of InSpool/OutSpool/ImgExchange.
 
 Every output path is inside the new folder on the USB stick. Read the `.bat` files before running them: they are short plain text.

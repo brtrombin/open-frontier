@@ -23,6 +23,10 @@ Public references only. Links and our own one-line summaries, never copies. Docu
 - [photolaundry/frontier-mfc10ay-mask-encoding-flex-cable](https://github.com/photolaundry/frontier-mfc10ay-mask-encoding-flex-cable): open replacement flex cable for the MFC10AY carrier.
 - [jackw01/scanlight](https://github.com/jackw01/scanlight): open hardware RGB light source for camera scanning (context on why RGB light).
 
+## Sprocket documentation (Boutique Film Lab)
+
+- [Sprocket](https://sprocket.boutiquefilmlab.com/) v1.25.1 user documentation (`docs/*.md`, `sprocket.ini.example`) and support tool `tools/inf_parser.py`, shipped with the macOS arm64 trial build. Facts about the Fuji spool format, FDIA_DB schema, .INF (DIPP) record layout and scanner behavior derived from these plain-text files, described in our own words with credit. The compiled executables were not decompiled or run. The archive is not in this repository.
+
 ## Commercial standalone routes
 
 - [minilablaser: Fujifilm film scanner standalone software](https://minilablaser.com/fujifilm-film-scanner-standalone-software/) and [S1 SP-3000 Basic Software](https://minilablaser.com/s1/).

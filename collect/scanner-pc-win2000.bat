@@ -9,7 +9,9 @@ rem What it never does: talk to the scanner, change settings, delete files,
 rem write to the registry, or copy programs/drivers (.exe .dll .sys).
 rem
 rem Run it from the USB stick (double click), as the usual user (FRONTIER),
-rem when no scan is running.
+rem when no scan is running. IMPORTANT: running this while a scan is in
+rem progress can cause a sharing violation that aborts ExecLSeqObj.exe and
+rem wedges the scanner.
 
 setlocal
 set DRV=%~d0
@@ -73,25 +75,37 @@ regedit /e "%OUT%\registry\enum.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSe
 regedit /e "%OUT%\registry\services.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services"
 regedit /e "%OUT%\registry\class.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class"
 
+rem --- Registry: Fujifilm-specific keys (confirmed path: HKLM\SOFTWARE\FUJIFILM) ---
+echo [6/11] Registro / registry (Fujifilm)...
+regedit /e "%OUT%\registry\fujifilm.reg" "HKEY_LOCAL_MACHINE\SOFTWARE\FUJIFILM"
+regedit /e "%OUT%\registry\fujiphoto.reg" "HKEY_LOCAL_MACHINE\SOFTWARE\Fuji Photo Film"
+regedit /e "%OUT%\registry\frontier.reg" "HKEY_LOCAL_MACHINE\SOFTWARE\Frontier"
+
 rem --- Registry: all installed software settings (may contain license keys) ---
-echo [6/9] Registro / registry (software, opcional)...
+echo [7/11] Registro / registry (software, opcional)...
 regedit /e "%OUT%\OPTIONAL-may-contain-licenses\software.reg" "HKEY_LOCAL_MACHINE\SOFTWARE"
 
+rem --- InSpool and ImgExchange folder listing (names and sizes only, no file copies) ---
+echo [8/11] InSpool e ImgExchange (lista / listing only)...
+if exist "D:\InSpool" dir /a "D:\InSpool" > "%OUT%\inspool-listing.txt" 2>&1
+if exist "D:\OutSpool" dir /a "D:\OutSpool" > "%OUT%\outspool-listing.txt" 2>&1
+if exist "D:\ImgExchange" dir /a "D:\ImgExchange" > "%OUT%\imgexchange-listing.txt" 2>&1
+
 rem --- File listings of both disks (names, dates, sizes only) ---
-echo [7/9] Lista de arquivos / file listing (pode demorar / may take a while)...
+echo [9/11] Lista de arquivos / file listing (pode demorar / may take a while)...
 dir /s /a C:\ > "%OUT%\files-C.txt" 2>&1
 if exist D:\ dir /s /a D:\ > "%OUT%\files-D.txt" 2>&1
 if exist "D:\Fujifilm\Frontier\Log" dir /a "D:\Fujifilm\Frontier\Log" > "%OUT%\log-folder.txt" 2>&1
 
 rem --- Text configuration files from Fujifilm/Frontier folders only ---
-echo [8/9] Arquivos de configuracao / config files (.ini .cfg)...
+echo [10/11] Arquivos de configuracao / config files (.ini .cfg)...
 for /d %%F in ("C:\Fuji*" "D:\Fuji*" "C:\Frontier*" "D:\Frontier*" "C:\Program Files\Fuji*" "C:\Program Files\Frontier*") do (
   xcopy "%%F\*.ini" "%OUT%\config-files\%%~nxF\" /s /i /c /h /y /q >> "%OUT%\config-files\xcopy.log" 2>&1
   xcopy "%%F\*.cfg" "%OUT%\config-files\%%~nxF\" /s /i /c /h /y /q >> "%OUT%\config-files\xcopy.log" 2>&1
 )
 
 rem --- Full hardware/driver report (msinfo32 ships with Windows 2000) ---
-echo [9/9] Relatorio de hardware / hardware report (msinfo32, alguns minutos / a few minutes)...
+echo [11/11] Relatorio de hardware / hardware report (msinfo32, alguns minutos / a few minutes)...
 if exist "%CommonProgramFiles%\Microsoft Shared\MSInfo\msinfo32.exe" (
   start /wait "" "%CommonProgramFiles%\Microsoft Shared\MSInfo\msinfo32.exe" /report "%OUT%\msinfo32.txt"
 ) else (

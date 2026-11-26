@@ -22,6 +22,12 @@ Final interface: a web application served by the Linux PC, usable from Windows, 
   - Never send the scanner write, motion or calibration commands that have not been observed in original traffic and understood. Start with reads only (config ROM, status registers).
   - Never write to scanner flash/EEPROM.
   - Stop and ask before any step that could move motors, turn on the light source or change persistent configuration. Stop and ask before any step that sends anything to the scanner.
+  - **Server-side safety** (confirmed hazards, not hypothetical):
+    - Never open InSpool files before `OrderTable.Status == 2`. Reading files while the scanner is still writing causes a sharing violation that aborts `ExecLSeqObj.exe` and wedges the scanner.
+    - Never delete spool folders. A missing folder produces Fuji error W-5302 on Continue.
+    - Never write to `FDIA_DB`. The scanner sets its own status; we only read.
+    - Never run the collection kit or any InSpool tool during a scan.
+    - On Windows, open InSpool files with `FILE_SHARE_DELETE` (`FILE_SHARE_ALL`).
 - Reverse engineering only for interoperability with the user's own equipment.
 - **Proprietary and private data never enters the repository.** Fujifilm binaries, firmware, manuals, registry/ini exports, raw dumps (.bin/.tag/.RAW/.INF), screenshots of Fujifilm software, and anything collected from third-party machines (such as the user's friend Marcelo) stay outside git. The user shares them privately in the chat. Only facts we derived ourselves, in our own words, are committed. When proprietary material shows up, point it out to the user explicitly.
 

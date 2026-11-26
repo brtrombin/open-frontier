@@ -9,6 +9,8 @@ rem What it never does: talk to the scanner, change settings, delete files,
 rem write to the registry, or copy programs/drivers (.exe .dll .sys).
 rem
 rem Run it from the USB stick (double click) when no scan is running.
+rem IMPORTANT: running this while a scan is in progress can cause a sharing
+rem violation that aborts ExecLSeqObj.exe and wedges the scanner.
 
 setlocal
 set DRV=%~d0
@@ -73,19 +75,24 @@ for %%K in ("HKLM\SOFTWARE\FUJIFILM" "HKLM\SOFTWARE\Fuji Photo Film" "HKLM\SOFTW
 echo [6/9] Registro / registry (software, opcional)...
 reg export "HKLM\SOFTWARE" "%OUT%\OPTIONAL-may-contain-licenses\software.reg" > nul 2>&1
 
-echo [7/9] Lista de arquivos / file listing (pode demorar / may take a while)...
+echo [7/10] InSpool e ImgExchange (lista / listing only)...
+if exist "D:\InSpool" dir /a "D:\InSpool" > "%OUT%\inspool-listing.txt" 2>&1
+if exist "D:\OutSpool" dir /a "D:\OutSpool" > "%OUT%\outspool-listing.txt" 2>&1
+if exist "D:\ImgExchange" dir /a "D:\ImgExchange" > "%OUT%\imgexchange-listing.txt" 2>&1
+
+echo [8/10] Lista de arquivos / file listing (pode demorar / may take a while)...
 dir /s /a C:\ > "%OUT%\files-C.txt" 2>&1
 for %%D in (D E F) do (
   if /i not "%%D:"=="%DRV%" if exist %%D:\ dir /s /a %%D:\ > "%OUT%\files-%%D.txt" 2>&1
 )
 
-echo [8/9] Arquivos de configuracao / config files (.ini .cfg)...
+echo [9/10] Arquivos de configuracao / config files (.ini .cfg)...
 for /d %%F in ("C:\Fuji*" "D:\Fuji*" "C:\Frontier*" "D:\Frontier*" "C:\Program Files\Fuji*" "C:\Program Files\Frontier*" "C:\Program Files\Sprocket*") do (
   xcopy "%%F\*.ini" "%OUT%\config-files\%%~nxF\" /s /i /c /h /y /q >> "%OUT%\config-files\xcopy.log" 2>&1
   xcopy "%%F\*.cfg" "%OUT%\config-files\%%~nxF\" /s /i /c /h /y /q >> "%OUT%\config-files\xcopy.log" 2>&1
 )
 
-echo [9/9] Relatorio de hardware / hardware report (msinfo32, alguns minutos / a few minutes)...
+echo [10/10] Relatorio de hardware / hardware report (msinfo32, alguns minutos / a few minutes)...
 if exist "%CommonProgramFiles%\Microsoft Shared\MSInfo\msinfo32.exe" (
   start /wait "" "%CommonProgramFiles%\Microsoft Shared\MSInfo\msinfo32.exe" /report "%OUT%\msinfo32.txt"
 ) else (
