@@ -17,7 +17,7 @@ Checked against the Linux kernel tree (master, 7.4-rc4) on 2026-11-25. Always co
 
 | Option | Chip | `lspci -nn` ID | Notes |
 |---|---|---|---|
-| **Preferred** | VIA **VT6315N**, native PCIe | `1106:3403` | Native PCIe, no bridge. Kernel applies `QUIRK_NO_MSI`, which is handled automatically. Example product: StarTech **PEX1394A2V2** (2x 6-pin FW400). Listings disagree on its chip (VT6315N vs TI), so verify before buying |
+| **Preferred** | VIA **VT6315N**, native PCIe | `1106:3403` | Native PCIe, no bridge. Kernel applies `QUIRK_NO_MSI`, which is handled automatically. Example products: StarTech **PEX1394A2V** (a StarTech datasheet lists VT6315N; a lab technician reports running an SP-3000 VM setup with it, see journal 2026-11-26) and **PEX1394A2V2** (2x 6-pin FW400; listings disagree on its chip, VT6315N vs TI). Verify before buying |
 | Alternative | TI **XIO2213B** | `104c:823f` | FireWire 800 (1394b) controller. Cards usually have 9-pin ports, and some add one 6-pin port. A 9-pin to 6-pin bilingual cable connects to 1394a devices |
 | VM path only | VIA VT6306/6307/6308 | `1106:3044` | The only chip validated in Chauvel's ESXi passthrough guide. On PCIe cards it sits behind a PCIe-to-PCI bridge. Do not use on AMD Ryzen with an ASM1083/1085 bridge |
 

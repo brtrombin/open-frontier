@@ -61,4 +61,5 @@ Ordered list of transactions from bus reset to "scanner ready", with timing.
 - Do the GPA23 DSPs deliver processed or raw data? Can raw be requested?
 - What does the .tag file contain?
 - High-level or low-level commands?
-- Is per-machine calibration data uploaded by the host at init?
+- Is per-machine calibration data uploaded by the host at init? (A reinstall reportedly requires loading the scanner's own backup, which suggests yes; medium confidence.)
+- Where does Fujifilm's "Image Intelligence" color processing run: in MS11 on the PC, or in the image box (GPA23 DSPs)? If it is in the PC software, static analysis can study it; if it is in the DSPs, raw capture bypasses it and the look must be rebuilt. Unknown.

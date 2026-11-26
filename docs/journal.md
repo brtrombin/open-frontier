@@ -2,6 +2,25 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26: community thread on r/AnalogCommunity
+
+**Source**: Reddit thread "Would modern open-source software for the Frontier SP-3000 help the community?" by u/Ranocyte, about 2026-11-10 (https://www.reddit.com/r/AnalogCommunity/comments/1xsky30/would_modern_opensource_software_for_the_frontier/). Read from a copy pasted by the project owner; summarized in our words.
+
+**Summary**
+- The author is a software developer who wants to build an open-source replacement that runs the SP-3000 from a Mac or modern PC. He has no SP-3000 and asks for RAW scan files and testers. Possible collaborator: we have the scanner, he has the time. Not contacted yet.
+- No commenter points to an existing open project. One thinks something exists but cannot remember the name (unverified). VueScan is mentioned without evidence that it supports the Frontier (medium confidence that it does not).
+- Paid installers that move SP-3000 setups to modern PCs/VMs: Fotronix (fotronix.uk/sp3000) and Emil Raji (emilraji.com), who reportedly did it for Halide Supply (Collingwood, Australia).
+
+**Technical claims (all from commenters, unverified)**
+- A lab technician (Xanap Filmlab, Bangkok, runs an HS-1800 and an SP-3000) runs the whole Frontier system on a modern PC with the scanner software in a VM, using a StarTech PEX1394A2V (2-port 1394a PCIe) card. Supports our card choice in `hardware.md` (medium confidence).
+- The thread author says only some FireWire chipsets work reliably ("NEC or TI"). This differs from Jack Chauvel's guide (VIA). Low-medium confidence; to be checked against the scanner PC's own controller in Phase 0.
+- The hard parts of a reinstall: the right MS01/MS11 version for the Windows version, and **loading the scanner's own backup during installation**. This supports plan-review point 6: per-scanner data lives on the PC side and must be preserved (medium-high confidence now).
+- Some setups may need conventional PCI FireWire cards, so hosts with legacy PCI.
+- Several commenters say the real value is Fujifilm's "Image Intelligence" color processing, and nobody knows whether it runs in MS11 or in the scanner's image processing box. New open question, recorded in `protocol.md`.
+- Ideas mentioned: an FPGA bridge, a Raspberry Pi / low-power ARM host.
+
+**Community rule to remember**: r/AnalogCommunity rule 9 allows app/DIY posts only if they are free or open source and come from an established active member; new accounts cannot share them.
+
 ## 2026-11-25 (later): prior art for the whole Frontier SP family
 
 **Searched**: GitHub repositories and code ("fuji frontier", "frontier scanner", "sp3000 scanner", "LukeUsbDrv", "frontier ms11"), plus web searches for open drivers or reverse-engineering work on the SP-500, SP-1500, SP-2000, SP-2500 and SP-3000.
