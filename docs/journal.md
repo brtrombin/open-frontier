@@ -2,6 +2,21 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (later): second thread, an owner's failed virtualised setup
+
+**Source**: Reddit thread "Reconnecting Fuji SP-3000 to Virtualised Setup (After Engineer Reversal & Loaned Tower)" by u/Flimsy-Wedding-3833, Norwich UK, about one year old (https://www.reddit.com/r/AnalogCommunity/comments/1m6cqib/reconnecting_fuji_sp3000_to_virtualised_setup/). Read from a copy pasted by the project owner; summarized in our words.
+
+**Facts from the owner (unverified, but first-hand)**
+- The scanner side connects to the scanner PC through **two FireWire links, to "MCU1" and "MCU2"**. This refines what we had ("one link to the image box, one from the MCU to the power supply"). Medium confidence; to be confirmed with photos in Phase 0.
+- A single-PC virtualised setup (scanner PC + image server as VMs, about £800) worked until **the scanner's lens configuration data became corrupted**. The cause is not stated. Field engineers then refused to support VMs, reinstalled the original scanner PC tower, and lent a separate image server PC.
+- Topology after the repair: scanner (MCU1, MCU2) to scanner PC over FireWire, scanner PC to image server over Ethernet, image server to the internet through a second network port.
+- Moving only the image server back to the VM booted the server software, but the scanner did not respond. The owner suspects the network configuration (IP/name) the scanner PC expects.
+
+**What it means for us**
+- Per-scanner configuration such as lens data lives where it can be corrupted, and losing it takes the scanner down. Phase 0 must back up these files explicitly, and our software must never write them (high confidence on the need, medium on where the files live).
+- Two FireWire links to two MCUs: the Linux host may need two ports, possibly on one bus or two. Phase 0 item C2 (count the 1394 controllers) and photos B2/B4 answer this.
+- Field engineers distrust VMs and FireWire passthrough. Running on bare-metal Linux avoids passthrough altogether.
+
 ## 2026-11-26: community thread on r/AnalogCommunity
 
 **Source**: Reddit thread "Would modern open-source software for the Frontier SP-3000 help the community?" by u/Ranocyte, about 2026-11-10 (https://www.reddit.com/r/AnalogCommunity/comments/1xsky30/would_modern_opensource_software_for_the_frontier/). Read from a copy pasted by the project owner; summarized in our words.

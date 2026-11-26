@@ -37,7 +37,7 @@ Scanner PC "EZPC00" (Toshiba, Windows 2000 Pro, A1 or MS01+MS11 or S1)
 Server "FRONTEND" (XP/7/10: C4/C5, S2, MS01, PTS SSI or Sprocket)
 ```
 
-- The Toshiba has two FireWire ports. One goes to the image box/head. There is also a FireWire cable from the MCU to the power supply unit (medium confidence on the role of that second link). A replacement must cover both links.
+- The Toshiba has two FireWire ports. An owner reports they connect to "MCU1" and "MCU2" (medium confidence). Earlier research mentioned a FireWire cable from the MCU to the power supply unit (low confidence). A replacement must cover every link.
 - Internal scanner links use RS422 and similar (not reachable from the PC).
 - The CCD makes micro-movements: the same image is scanned once or up to 8 times while shifting the CCD. Scanning 4 positions and assembling on the PC gives about 2x linear resolution.
 - The image box has GPA23 boards with DSPs. Scanners with two GPA23 boards are faster. Probable bottleneck of about 3.4 s/frame (low-medium confidence).

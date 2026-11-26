@@ -8,8 +8,9 @@ Status (2026-11-25): **nothing observed yet.** Fill in during Phases 0, 1 and 2.
 
 | Link | From | To | Connector | Same bus as | Evidence | Confidence |
 |---|---|---|---|---|---|---|
-| FW-A | Scanner PC port ? | Image box / head | ? | ? | | |
-| FW-B | MCU | Power supply unit | ? | ? | | |
+| FW-A | Scanner PC port ? | MCU1 | ? | ? | Owner report, Reddit 1m6cqib (journal 2026-11-26) | medium |
+| FW-B | Scanner PC port ? | MCU2 | ? | ? | Same | medium |
+| FW-? | MCU | Power supply unit | ? | ? | Earlier research; may be the same link as one above | low |
 
 Questions:
 - How many 1394 controllers does the scanner PC have (one bus or two)?
