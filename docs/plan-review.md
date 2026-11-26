@@ -49,7 +49,7 @@ Per-scanner data (shading tables, lens and carrier adjustments, color setup) is 
 
 ### 7. Start static analysis now, in parallel (medium)
 
-Option 2c (Ghidra on the Fujifilm drivers and DLLs) needs no hardware, only a disk image of the user's own machine. It is probably the fastest way to the command map. Windows 2000 WDM drivers talk to `1394bus.sys` through IRBs (`REQUEST_ASYNC_READ`, `REQUEST_ASYNC_WRITE`, `REQUEST_ASYNC_LOCK`, `REQUEST_ISOCH_*`), and those call sites are easy to find and cross-reference. It can start the day the disk image exists.
+Option 2c (Ghidra on the Fujifilm drivers and DLLs) needs no hardware, only a disk image of the machine we work on, with its owner's authorization. It is probably the fastest way to the command map. Windows 2000 WDM drivers talk to `1394bus.sys` through IRBs (`REQUEST_ASYNC_READ`, `REQUEST_ASYNC_WRITE`, `REQUEST_ASYNC_LOCK`, `REQUEST_ISOCH_*`), and those call sites are easy to find and cross-reference. It can start the day the disk image exists.
 
 ### 8. A technique the plan lacks: an IRB logging filter on Windows 2000 (medium)
 
@@ -103,6 +103,18 @@ Hypothesis (low-medium): VDEntry, the Fujifilm tool that sets up the scanner PC'
 
 Jack Chauvel runs the scanner PC's software in a VM on ESXi, with the FireWire card passed through. Windows 10 client hypervisors cannot pass a PCI device to a guest: Hyper-V Discrete Device Assignment is a Windows Server feature, and VMware Workstation and VirtualBox on Windows have no PCI passthrough. The VM route remains possible on a separate machine running ESXi or Linux with KVM, not on the Windows 10 PC itself.
 
+## The system we work on (added 2026-11-26, evening)
+
+### 17. A working ESXi system as the bench (medium-high)
+
+The only SP-3000 in the project belongs to the user's friend and runs virtualised on ESXi along Chauvel's guide. With the owner's authorization, that gives us:
+- cold copies of both VMs, which are the undo for any change;
+- real spool files and the front-end's output of the same orders, for S1;
+- passive recordings of the network between the two VMs, taken on the host with `pktcap-uw`: the spool writes and, if the order database is on the server VM, its traffic too, for S2 and S3;
+- a place for the Phase 1a logging, inside the scanner PC VM.
+
+ESXi takes no snapshots of a VM with a passed-through PCI device (medium-high confidence), so cold copies replace snapshots. Procedures: `docs/bench-esxi.md`.
+
 ## Server-side safety rules (added 2026-11-26)
 
 Any future tool that touches InSpool or FDIA_DB must follow these, confirmed from real failures documented in Sprocket's user documentation:
@@ -121,8 +133,8 @@ Supersedes the order below. The spool side comes first, because its formats are 
 2. **S1**, now: decode finished spool orders on Windows 10, offline, and compare with the Fuji output (`docs/windows-test-plan.md`). This confirms the RAW and INF formats on real files.
 3. **S2**: a watcher that reads only finished orders (`OrderTable.Status == 2`), opening files with `FILE_SHARE_DELETE`. Needs read access to FDIA_DB and the SMB1 client on the Windows 10 PC, with the equipment owner's go-ahead.
 4. **S3**: stand in for FDIA_DB over TDS, then retire the front-end server. Needs captures of the scanner PC's own SQL traffic first.
-5. **Phase 2c**, in parallel: static analysis of the user's own disk image.
-6. **Phase 1a**, then **1b** from a Linux live USB on the Windows 10 PC, then **Phase 2**, the abort and recovery procedure, and **Phase 3**, as below.
+5. **Phase 2c**, in parallel: static analysis of the owner's disk image.
+6. **Phase 1a** inside the DI VM, then **1b** from a Linux live USB on the PC that carries the scanner's FireWire link (for the friend's system, the ESXi host booted from the USB stick instead of ESXi), then **Phase 2**, the abort and recovery procedure, and **Phase 3**, as below.
 7. The Windows FireWire driver (point 15), once the protocol is known.
 
 ## Earlier proposed order (2026-11-25, superseded)

@@ -2,6 +2,23 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (night): authorization and the ESXi bench
+
+**From the project owner**
+- The friend authorizes tests, passive captures and analysis of his own disk images, with everything kept private.
+- His is the only SP-3000 in the project; the owner has none.
+- His hypervisor is VMware ESXi.
+
+**Done**
+- `CLAUDE.md`: new section "The system we work on"; the reverse-engineering rule now refers to that equipment and its owner's authorization; a rule that every procedure must be one a non-technical owner can follow; phases 0, 1 and 2 adjusted to the ESXi system. `README.md` legal note and `plan-review.md` (point 17, revised order) to match.
+- `docs/bench-esxi.md`: B0 backups (cold exports of both VMs, two copies, the Clonezilla image, the physical Toshiba untouched), B1 one finished order through `openfrontier`, B2 the collection kit inside both VMs plus the `.vmx` files, B3 a passive recording of the network between the VMs with `pktcap-uw`, B4 FireWire logging later. A Portuguese copy went to the owner privately, outside git.
+
+**Facts used, with confidence**
+- ESXi takes no snapshots of a VM with a passed-through PCI device: medium-high (VMware lists snapshots among the features unavailable with DirectPath I/O). Cold copies are the undo instead.
+- Windows 2000 and XP have no USB 3 driver, so a USB controller added to their VMs must be USB 2.0: high.
+- `pktcap-uw` options vary between ESXi versions (`--dir 2` for both directions is recent): medium, hence the instruction to check `pktcap-uw -h` first.
+- If the order database runs on the DI VM itself, its queries never cross the virtual network and B3 cannot see them: high. B2 tells where it runs.
+
 ## 2026-11-26 (end of day): the system we work on
 
 Corrected the same evening: a first version of this entry described the Toshiba and the XP server below as the project owner's own system. The owner then said the work is being done for a friend, so this entry now describes the friend's system. Whether the owner also has an SP-3000 is to be confirmed.

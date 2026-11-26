@@ -41,7 +41,7 @@ Risk: none to the scanner, if the copy is made as described.
    - copy one order folder from InSpool (an 8-digit folder such as `00006360`) to a USB stick;
    - if the `.INF` files are not beside the `.RAW` files (Fuji's own software puts them in OutSpool), also copy the matching folder or files from OutSpool.
 
-   Do not move or delete anything in InSpool or OutSpool, and leave the copy's folder name as the order number. The collection kit listing (`inspool-listing.txt`) shows which order folders are there.
+   Do not move or delete anything in InSpool or OutSpool, and leave the copy's folder name as the order number. The collection kit listing (`inspool-listing.txt`) shows which order folders are there. If the scanner PC and the server run as VMs on ESXi, `docs/bench-esxi.md` (B1) says how to get the files out.
 2. Copy the Fuji software's own output (JPEG or TIFF) of the **same** order to the stick.
 3. On the Windows 10 PC, copy both from the stick to a local folder, for example `C:\of-test\order\00006360` and `C:\of-test\fuji\`.
 4. Run, one at a time:

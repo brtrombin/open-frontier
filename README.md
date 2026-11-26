@@ -75,7 +75,7 @@ Details: [docs/plan-review.md](docs/plan-review.md) (revised order), [docs/windo
 
 ## Legal note and what this repository will never contain
 
-Reverse engineering here is done only for interoperability with equipment the contributors own. This repository holds only our own notes and our own code. It never contains Fujifilm software, drivers, firmware, manuals, registry or configuration exports, raw scan dumps, or screenshots of Fujifilm software. The `.gitignore` blocks those file types. Facts we derive ourselves (IDs, register addresses, packet layouts), described in our own words, are what gets documented.
+Reverse engineering here is done only for interoperability, on equipment whose owner takes part in the project and has authorized it. This repository holds only our own notes and our own code. It never contains Fujifilm software, drivers, firmware, manuals, registry or configuration exports, raw scan dumps, or screenshots of Fujifilm software. The `.gitignore` blocks those file types. Facts we derive ourselves (IDs, register addresses, packet layouts), described in our own words, are what gets documented.
 
 Fujifilm and Frontier are trademarks of FUJIFILM Corporation. This project is not affiliated with or endorsed by Fujifilm.
 
