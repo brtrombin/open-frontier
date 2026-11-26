@@ -2,7 +2,22 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
-## 2026-11-26 (night): authorization and the ESXi bench
+## 2026-11-26 (11): review of the collection kit and the support files
+
+**Goal**: one run of the kit on the owner's two VMs should answer everything we can learn without touching the scanner, so we do not have to ask him again.
+
+**Kit changes** (both files, still read-only, CRLF, checked for any command that deletes, moves or writes settings, and for any SQL verb other than SELECT):
+- Open connections (`netstat`), `arp`, `route`, `nbtstat`, and the `hosts`/`lmhosts` files: how the scanner PC reaches the server and the database (named pipes over SMB, or TCP 1433).
+- Registry exports of SQL Server client settings (aliases), ODBC data sources and programs started with Windows.
+- Recursive listings of InSpool, OutSpool and ImgExchange: the real file names, sizes and layout of the spool (RAW/INF beside each other or split), without opening any file.
+- Text logs (`*.log`, `*.txt`) from the Fujifilm and Frontier folders only.
+- Read-only `SELECT ... WITH (NOLOCK)` queries on the local order database, if that machine has one: table list, device menu, the last 30 orders with their status, the last 20 frames with their color settings. Windows login first, then the factory login. This tells where the database runs and fills open questions on `ImageTable`'s CMYD columns (medium confidence that the queries run on MSDE 2000 as written; untested on a real machine).
+- Server: `tasklist /svc` (running programs and services).
+- Fixed the step counters shown on screen.
+
+**Support files**: `collect/README.md` (VM instructions, new outputs, who owns what), `phase0-checklist.md` and `phase1-runbook.md` (notes for the ESXi system), journal headings renumbered in time order.
+
+## 2026-11-26 (10): authorization and the ESXi bench
 
 **From the project owner**
 - The friend authorizes tests, passive captures and analysis of his own disk images, with everything kept private.
@@ -19,7 +34,7 @@ One entry per working session: date, what was done, evidence, confidence. Newest
 - `pktcap-uw` options vary between ESXi versions (`--dir 2` for both directions is recent): medium, hence the instruction to check `pktcap-uw -h` first.
 - If the order database runs on the DI VM itself, its queries never cross the virtual network and B3 cannot see them: high. B2 tells where it runs.
 
-## 2026-11-26 (end of day): the system we work on
+## 2026-11-26 (9): the system we work on
 
 Corrected the same evening: a first version of this entry described the Toshiba and the XP server below as the project owner's own system. The owner then said the work is being done for a friend, so this entry now describes the friend's system. Whether the owner also has an SP-3000 is to be confirmed.
 
@@ -35,7 +50,7 @@ Corrected the same evening: a first version of this entry described the Toshiba 
 - His VM images hold Fujifilm software, his scanner's calibration and his customers' orders: private, never in git. Any work on his equipment and software needs his explicit authorization (to be confirmed), and his scanner PC VM must never be connected to another scanner (per-scanner calibration, possibly uploaded at init, medium confidence).
 - Every procedure we write should be one a non-technical owner can follow: what to do, what not to touch, how to undo it.
 
-## 2026-11-26 (latest): first program, natively on Windows 10
+## 2026-11-26 (8): first program, natively on Windows 10
 
 **Decisions (user)**
 - No outreach to other people.
@@ -64,7 +79,7 @@ Corrected the same evening: a first version of this entry described the Toshiba 
 - User: T0 (`openfrontier firewire`) on the Windows 10 PC, then T1 with one finished order and the Fuji output of the same frames.
 - Then: correct whatever the real files contradict, and design the S2 watcher.
 
-## 2026-11-26 (earlier): deep read of all Sprocket 1.25.1 plain-text files
+## 2026-11-26 (7): deep read of all Sprocket 1.25.1 plain-text files
 
 **Read**: every remaining plain-text file in the Sprocket 1.25.1 package not covered in the earlier session: `docs/REFERENCE.md`, `docs/TROUBLESHOOTING.md`, `docs/GETTING_STARTED.md`, `docs/DEPLOYMENT.md`, `docs/MACOS_INSTALL.md`, `docs/DATABASE_SETUP.md`, `sprocket.ini.example` (complete, including all comments), all seed data files (`10_DEVICETABLE.txt`, `11_SIZETABLE.txt`, `12_COMBINATIONTABLE.txt`, `13_DESCRIPTOR.txt`), `tools/smb_bench.py`, `tools/sprocket_agent.py`, `tools/support_link.py`, `macos/com.boutiquefilmlab.sprocket.plist`, `macos/com.boutiquefilmlab.sprocket-dashboard.plist`. No compiled executables were opened or run.
 
@@ -91,7 +106,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Changes made**: `docs/protocol.md` sections 9.1 (write order), 9.5 (complete schema with types, factory password, connection details, device INF files, order handshake), 9.8 (SP-500 expanded), new sections 9.10 (F-DIA service emulation), 9.11 (SMB mount requirements), 9.12 (timing), 9.13 (B&W and color), 9.14 (order numbering), 10 (new open questions). `docs/journal.md` (this entry).
 
-## 2026-11-26 (later): facts from Sprocket 1.25.1 documentation and support tools
+## 2026-11-26 (6): facts from Sprocket 1.25.1 documentation and support tools
 
 **Read**: the plain-text documentation (`docs/*.md`, `sprocket.ini.example`) and the `tools/inf_parser.py` support script shipped with the Sprocket 1.25.1 macOS arm64 trial build by Boutique Film Lab. Only documentation and one plain-Python utility were read; the compiled executables were not opened, run or decompiled. The archive itself stays outside git (`.tar.gz` is already in `.gitignore`).
 
@@ -113,7 +128,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Changes made**: `docs/protocol.md` sections 9 (major expansion) and 10 (open questions updated), `CLAUDE.md` (server-side safety rules), `docs/plan-review.md` (server-side safety rules), `collect/scanner-pc-win2000.bat` (Fujifilm registry export, InSpool/OutSpool/ImgExchange listing, safety warning), `collect/server-xp.bat` (same), `collect/README.md` (safety warning, updated command lists), `docs/sources.md` (Sprocket credit), `docs/journal.md` (this entry).
 
-## 2026-11-26 (later): research on "standalone" SP-3000 projects
+## 2026-11-26 (5): research on "standalone" SP-3000 projects
 
 **Searched**: web (standalone kits, software, services, Mac/Linux use) and GitHub (repositories and code: "sp3000", "InSpool frontier", "SP3000 frontier", "frontier ms01", "fujiRawConvert" and others). Vendor sites (Sprocket, Fotronix, minilablaser, Trichroma Lab and others) and forums (minilabhelp, Facebook, Reddit) could not be opened from the research environment, so their details come from search snippets only (medium confidence).
 
@@ -133,7 +148,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Consequence for the plan**: the server side is a low-risk first deliverable. A Linux replacement for the XP front end needs no FireWire and never talks to the scanner (proposed to the project owner, not decided).
 
-## 2026-11-26 (later): no hardware purchases
+## 2026-11-26 (4): no hardware purchases
 
 **Decision** (project owner): drop the shopping list. We build with the machines we already have; Adre Lanine runs his version on a laptop.
 
@@ -143,7 +158,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 - The Linux machine can be a desktop or a laptop, as long as Linux sees a FireWire controller (`lspci -nnk`). Open question: whether a laptop port (for example a MacBook Pro FireWire 800 port, or a Thunderbolt-to-FireWire adapter) supplies the bus power the scanner's power link seems to need (low confidence either way).
 - pci.ids: `11c1:5901` is the LSI FW643 1394b controller found on many Macs (high confidence on the ID).
 
-## 2026-11-26 (later): full read of Jack Chauvel's ESXi guide, and Sebastian Schlueter's review
+## 2026-11-26 (3): full read of Jack Chauvel's ESXi guide, and Sebastian Schlueter's review
 
 **Sources**: https://www.jackchauvel.com.au/guide-to-virtualising-a-fuji-frontier-sp3000/ (v1.0 draft, 2020-10-12) and https://www.sebastian-schlueter.com/blog/2018/3/7/the-magic-fuji-frontier-sp-3000. Read from copies pasted by the project owner; summarized in our words.
 
@@ -161,7 +176,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Changes made**: `CLAUDE.md` (links, power-on behavior), the hardware list (bus power requirement; the list was removed later the same day), `plan-review.md` (new point 1b), `phase1-runbook.md` (power-on order in 1b).
 
-## 2026-11-26 (later): second thread, an owner's failed virtualised setup
+## 2026-11-26 (2): second thread, an owner's failed virtualised setup
 
 **Source**: Reddit thread "Reconnecting Fuji SP-3000 to Virtualised Setup (After Engineer Reversal & Loaned Tower)" by u/Flimsy-Wedding-3833, Norwich UK, about one year old (https://www.reddit.com/r/AnalogCommunity/comments/1m6cqib/reconnecting_fuji_sp3000_to_virtualised_setup/). Read from a copy pasted by the project owner; summarized in our words.
 
@@ -176,7 +191,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 - Two FireWire links to two MCUs: the Linux host may need two ports, possibly on one bus or two. Phase 0 item C2 (count the 1394 controllers) and photos B2/B4 answer this.
 - Field engineers distrust VMs and FireWire passthrough. Running on bare-metal Linux avoids passthrough altogether.
 
-## 2026-11-26: community thread on r/AnalogCommunity
+## 2026-11-26 (1): community thread on r/AnalogCommunity
 
 **Source**: Reddit thread "Would modern open-source software for the Frontier SP-3000 help the community?" by u/Ranocyte, about 2026-11-10 (https://www.reddit.com/r/AnalogCommunity/comments/1xsky30/would_modern_opensource_software_for_the_frontier/). Read from a copy pasted by the project owner; summarized in our words.
 
@@ -195,7 +210,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Community rule to remember**: r/AnalogCommunity rule 9 allows app/DIY posts only if they are free or open source and come from an established active member; new accounts cannot share them.
 
-## 2026-11-25 (later): prior art for the whole Frontier SP family
+## 2026-11-25 (2): prior art for the whole Frontier SP family
 
 **Searched**: GitHub repositories and code ("fuji frontier", "frontier scanner", "sp3000 scanner", "LukeUsbDrv", "frontier ms11"), plus web searches for open drivers or reverse-engineering work on the SP-500, SP-1500, SP-2000, SP-2500 and SP-3000.
 
@@ -215,7 +230,7 @@ The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can
 
 **Decision**: keep transport, scanner protocol and image pipeline as separate layers (see `src/README.md`), so other SP models can be added later.
 
-## 2026-11-25: project start, research and repository base
+## 2026-11-25 (1): project start, research and repository base
 
 **Done**
 - Created the repository structure, license (GPL-2.0-only), `.gitignore` blocking Fujifilm and private file types.

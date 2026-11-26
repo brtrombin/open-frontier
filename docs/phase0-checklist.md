@@ -2,6 +2,8 @@
 
 Goal: at the end of Phase 0, the original Toshiba + server can be rebuilt from backups in an afternoon, and we know everything about the setup that we can learn without touching the FireWire bus.
 
+Scanner PC and server running as VMs on ESXi (the system we work on): most of this phase is done differently, see `docs/bench-esxi.md` (B0 for the copies, B2 for the collection kit). Sections A, B, D and E still apply as written.
+
 Rules for the whole phase:
 - Change **nothing** persistent unless a step says so, and undo it afterwards.
 - Everything collected here (disk images, photos of Fujifilm screens, registry and ini files, scans, dumps) is private or proprietary. It goes to the external drives, **never to git**.

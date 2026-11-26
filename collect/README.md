@@ -2,7 +2,7 @@
 
 If you run a working Frontier SP-3000, an hour of your time gives this project facts that are not published anywhere: which FireWire controller the scanner PC uses, the Fujifilm driver names and versions, the software version, boot timing and cabling.
 
-**Nothing here talks to the scanner or changes your machines.** The two scripts only run built-in Windows listing commands and write their output to the USB stick. They never delete anything, never write to the registry and never copy programs or drivers.
+**Nothing here talks to the scanner or changes your machines.** The two scripts only run built-in Windows listing commands, plus read-only queries on the order database when it runs on that machine, and write their output to the USB stick. They never delete anything, never write to the registry or the database, never open spool files and never copy programs or drivers.
 
 ## What you need
 
@@ -50,6 +50,8 @@ Right-click My Computer > Properties > Hardware > Device Manager.
 
 It creates a folder named `collect-<computer name>-1` on the stick.
 
+**Scanner PC and server in virtual machines (ESXi):** give the USB stick to each VM in turn (Host Client: the VM, Edit settings, Add other device, USB device; if the VM has no USB controller, add a USB 2.0 one), run the matching file inside the VM, then remove the device again. Also send each VM's `.vmx` file, the ESXi version and the FireWire card's name (`docs/bench-esxi.md`, B2).
+
 ### 6. Run `server-xp.bat` on the server
 
 Same as step 5, on the front-end server. If Windows asks you to insert a disk into a CD drive, click **Cancel** or **Continue**.
@@ -73,8 +75,11 @@ Zip the `collect-...` folders, the photos, the video and (if done) the step 7 fi
 | `files-*.txt`, `drivers-list.txt` | File names, dates and sizes | You (listing of your disk) | Private |
 | `registry/*.reg`, `fujifilm-keys.txt` | Hardware enumeration, driver and Fujifilm settings | You and Fujifilm | Private |
 | `OPTIONAL-may-contain-licenses/` | All installed software settings, possibly license keys | You and software vendors | Send only if you agree |
-| `config-files/` | Fujifilm `.ini`/`.cfg` settings | Fujifilm format, your settings | Private |
-| `network.txt` | IP addresses, computer names, shares | You | Private |
+| `config-files/` | Fujifilm `.ini`/`.cfg` settings and `.log`/`.txt` logs, `hosts` and `lmhosts` | Fujifilm format, your settings | Private |
+| `network.txt`, `connections.txt` | IP addresses, computer names, shares, open network connections | You | Private |
+| `spool-*.txt` | Names, dates and sizes of the files in InSpool, OutSpool, ImgExchange | You | Private |
+| `database.txt` | Read-only extract of the order database: table list, device menu, last 30 orders, last 20 frames' settings | You (orders of your customers), Fujifilm (format) | Private |
+| `programs-running.txt` (server) | Programs running and their services | You | Private |
 | `msinfo32.txt` | Hardware and driver report | You | Private |
 | Photos of Fujifilm screens | Fujifilm user interface | Fujifilm | Private |
 | `.bin`/`.tag` from menu 2241 | Raw scans of your film in a Fujifilm format | You (images), Fujifilm (format) | Private |
@@ -83,8 +88,8 @@ None of this is ever committed to the open-frontier repository. The project only
 
 ## What the scripts run
 
-Scanner PC (Windows 2000): `ver`, `set`, `ipconfig /all`, `net share`, `net use`, `net config`, `net start`, `dir` (including `D:\InSpool`, `D:\OutSpool`, `D:\ImgExchange` by name), `regedit /e` (export, read-only, including `HKLM\SOFTWARE\FUJIFILM` explicitly), `xcopy` of `*.ini`/`*.cfg` from Fujifilm/Frontier folders only, `msinfo32 /report`.
+Scanner PC (Windows 2000): `ver`, `set`, `ipconfig /all`, `net share`, `net use`, `net config`, `nbtstat -n`, `arp -a`, `route print`, `netstat -an`, `net start`, `dir` (including `InSpool`, `OutSpool` and `ImgExchange` with `/s`; listing never opens the files), `regedit /e` (export, read-only: hardware, services, `HKLM\SOFTWARE\FUJIFILM`, SQL Server and ODBC settings, programs started with Windows), `copy` of `hosts` and `lmhosts`, `xcopy` of `*.ini`, `*.cfg`, `*.log` and `*.txt` from Fujifilm/Frontier folders only, `osql` with `SELECT ... WITH (NOLOCK)` queries only, `msinfo32 /report`.
 
-Server (Windows XP and later): the same, plus `systeminfo`, `sc query`, `driverquery /v`, `reg query` (including `HKLM\SOFTWARE\FUJIFILM` and related keys) and `reg export` (read-only), and `dir` of InSpool/OutSpool/ImgExchange.
+Server (Windows XP and later): the same, plus `systeminfo`, `sc query`, `tasklist /svc`, `driverquery /v`, `reg query` and `reg export` (read-only), and `netstat -ano`.
 
-Every output path is inside the new folder on the USB stick. Read the `.bat` files before running them: they are short plain text.
+The database queries try Windows login first, then the factory login the Fuji software uses; if this machine has no SQL Server, `database.txt` says so and nothing else happens. Every output path is inside the new folder on the USB stick. Read the `.bat` files before running them: they are short plain text.
