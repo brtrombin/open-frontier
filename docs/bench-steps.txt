@@ -1,0 +1,38 @@
+open-frontier: steps for the scanner owner (SP-3000 on ESXi)
+Full version: docs/bench-esxi.md. Do everything at the end of the day,
+with no scan running. Copy only: never move or delete anything.
+Everything you send stays private (never on GitHub).
+
+1. BACKUP (do this first)
+   - Shut down both VMs (Start > Shut Down).
+   - ESXi web page: Virtual Machines > select VM > Actions > Export.
+     Save both VMs to an external drive. Make a second copy elsewhere.
+   - Keep the Clonezilla image in two places. Do not touch the
+     physical Toshiba.
+   - Start the VMs again as usual.
+
+2. ONE TEST ORDER
+   - Plug a USB stick into the ESXi PC and give it to the server VM
+     (VM > Edit settings > Add other device > USB device; if asked
+     for a USB controller, choose USB 2.0).
+   - Copy to the stick: one finished order folder from InSpool
+     (8-digit name), its .INF files if they are in OutSpool, and the
+     JPG/BMP files the system made from that order.
+   - Remove the USB device from the VM.
+
+3. COLLECTION KIT
+   - Put scanner-pc-win2000.bat and server-xp.bat (folder collect/)
+     on the stick.
+   - Give the stick to the scanner VM, run scanner-pc-win2000.bat
+     from it. Then to the server VM, run server-xp.bat.
+   - ESXi web page: download the .vmx file of each VM
+     (Storage > Datastore browser > VM folder), and note the ESXi
+     version (Help > About) and the FireWire card name
+     (Manage > Hardware > PCI devices).
+
+4. SEND privately: the order copy, the collect-... folders, the
+   .vmx files and the notes.
+
+Later, only if you agree on the day: a network recording between
+the two VMs, and a FireWire monitor inside the scanner VM (always
+after a fresh backup).
