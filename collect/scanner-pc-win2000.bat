@@ -10,6 +10,7 @@ rem What it never does: talk to the scanner, change settings, delete files,
 rem write to the registry or the database, open spool files, or copy
 rem programs/drivers (.exe .dll .sys).
 rem
+rem Also works on a scanner PC with Windows XP, and with or without a server.
 rem Run it from the USB stick (double click), as the usual user (FRONTIER),
 rem when no scan is running. IMPORTANT: running this while a scan is in
 rem progress can cause a sharing violation that aborts ExecLSeqObj.exe and
@@ -113,6 +114,7 @@ echo [10/13] Lista de arquivos / file listing (pode demorar / may take a while).
 dir /s /a C:\ > "%OUT%\files-C.txt" 2>&1
 if exist D:\ dir /s /a D:\ > "%OUT%\files-D.txt" 2>&1
 if exist "D:\Fujifilm\Frontier\Log" dir /a "D:\Fujifilm\Frontier\Log" > "%OUT%\log-folder.txt" 2>&1
+for /d %%F in ("C:\Fuji*" "D:\Fuji*" "C:\Frontier*" "D:\Frontier*" "C:\Program Files\Fuji*" "C:\InSpool" "D:\InSpool" "C:\OutSpool" "D:\OutSpool") do tree /a "%%F" >> "%OUT%\folders-tree.txt" 2>&1
 
 rem --- Text configuration files and text logs from Fujifilm/Frontier folders only ---
 echo [11/13] Configuracao e logs / config files and logs (.ini .cfg .log .txt)...
