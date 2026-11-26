@@ -2,6 +2,33 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (latest): deep read of all Sprocket 1.25.1 plain-text files
+
+**Read**: every remaining plain-text file in the Sprocket 1.25.1 package not covered in the earlier session: `docs/REFERENCE.md`, `docs/TROUBLESHOOTING.md`, `docs/GETTING_STARTED.md`, `docs/DEPLOYMENT.md`, `docs/MACOS_INSTALL.md`, `docs/DATABASE_SETUP.md`, `sprocket.ini.example` (complete, including all comments), all seed data files (`10_DEVICETABLE.txt`, `11_SIZETABLE.txt`, `12_COMBINATIONTABLE.txt`, `13_DESCRIPTOR.txt`), `tools/smb_bench.py`, `tools/sprocket_agent.py`, `tools/support_link.py`, `macos/com.boutiquefilmlab.sprocket.plist`, `macos/com.boutiquefilmlab.sprocket-dashboard.plist`. No compiled executables were opened or run.
+
+**Most significant finding: F-DIA service emulation via TDS**
+
+The `[fdia_service]` section in `sprocket.ini.example` reveals that Sprocket can fully emulate the scanner's database server. The SP-3000's server-side interface is entirely **TDS (Tabular Data Stream)**, the standard SQL Server wire protocol. The scanner makes SQL queries over TCP port 1433; any server that speaks TDS and returns the expected schema can replace the original MSDE/SQL Server. The protocol has **no authentication** (the scanner does not send a password the server can check). Access control is IP-based only. This is the single most important finding for the open-frontier project: the server-side protocol is known, documented and standard. High confidence.
+
+**Other key findings**
+
+- **Factory database password**: `radiogaga`, the same across Fuji software (high confidence).
+- **Scanner writes .INF after .RAW**: important for file-watching logic (high confidence).
+- **SMB mount requirements for Linux**: `actimeo=1`, `soft`, read-write, autofs recommended (high confidence).
+- **SMB1 throughput**: about 8 MB/s per stream over 100 Mbit, latency-bound (high confidence).
+- **Complete column types from CREATE TABLE statements**: OrderTable has `OrderSize` (float), `DeleteDate`/`DeleteTime`, `HoldStatus`; ImageTable has `BackPrint1/2`, `Border`, `Resize`, `ColorTableFlag/No`, `FreeString`, `ErrorCode`, `OriginalFileName`, `Quality`, `ConvertFlg` among others; LogTable mirrors OrderTable as an audit table (high confidence).
+- **Device INF files** (`DEV00003.INF`, `DEV00002.INF`): binary/structured files the scanner needs for its menu. Without them: E-1775 "no service menu" (high confidence).
+- **LOGIN7 TDS packet**: the scanner uses standard TDS LOGIN7. An older dialect's record layout "has never been decoded" (medium confidence).
+- **Order registration "handshake file"**: mentioned as an additional mechanism beyond the database (medium confidence).
+- **B&W sepia cast**: color-negative path produces tinted grayscale; Rec.709 luma collapse for neutralization; channel correlation 0.99937-0.99977 for B&W vs 0.860-0.994 for color (high confidence).
+- **SP-500 expanded details**: bit-identical file copies, `.li` file contents, ImgExchange folder structure, 5-digit order numbering with machine letter prefix (high confidence).
+- **Scanner timing**: poll 5s, quiescence 150s, frame settle 5s, resolve grace 180s, stale 30min (high confidence).
+- **FIFO processing**: by lowest FDIAManageID (high confidence).
+- **Files referenced but not shipped**: `PORTING.md`, `LINUX_INSTALL.md`, `SSI_REPLACEMENT_SPEC.md` (high confidence they exist, contents unknown).
+- **DI (C4/C5) export offers no TIFF**: only JPG, FPX, BMP, FUJICOLORCD (high confidence).
+
+**Changes made**: `docs/protocol.md` sections 9.1 (write order), 9.5 (complete schema with types, factory password, connection details, device INF files, order handshake), 9.8 (SP-500 expanded), new sections 9.10 (F-DIA service emulation), 9.11 (SMB mount requirements), 9.12 (timing), 9.13 (B&W and color), 9.14 (order numbering), 10 (new open questions). `docs/journal.md` (this entry).
+
 ## 2026-11-26 (later): facts from Sprocket 1.25.1 documentation and support tools
 
 **Read**: the plain-text documentation (`docs/*.md`, `sprocket.ini.example`) and the `tools/inf_parser.py` support script shipped with the Sprocket 1.25.1 macOS arm64 trial build by Boutique Film Lab. Only documentation and one plain-Python utility were read; the compiled executables were not opened, run or decompiled. The archive itself stays outside git (`.tar.gz` is already in `.gitignore`).
