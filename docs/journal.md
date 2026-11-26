@@ -2,6 +2,26 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (later): research on "standalone" SP-3000 projects
+
+**Searched**: web (standalone kits, software, services, Mac/Linux use) and GitHub (repositories and code: "sp3000", "InSpool frontier", "SP3000 frontier", "frontier ms01", "fujiRawConvert" and others). Vendor sites (Sprocket, Fotronix, minilablaser, Trichroma Lab and others) and forums (minilabhelp, Facebook, Reddit) could not be opened from the research environment, so their details come from search snippets only (medium confidence).
+
+**Open-source projects found**
+- **isakarvid/fujisan** (github.com/isakarvid/fujisan, 2016 to 2019, Python 2, macOS, no license file): "FDIA clone" by Svartlab, a Swedish lab. It replaces the front-end server: mounts InSpool/OutSpool over SMB, reads the `FDIA_DB` SQL Server database, decodes the RAW files, rotates them using `CdOrder.INF`, exports TIFF and marks the order completed. It does **not** touch the scanner or FireWire. Without a license we may learn facts from it but must not copy its code. Its source contains lab credentials; we do not record them. Findings in `protocol.md` section 9.
+- **photolaundry** (github.com/photolaundry): `frontier-hot-previewer` (watches `D:\Inspool` on the front end and converts RAW to TIFF for full-resolution preview), `frontier-ms01-shortcuts` (AutoHotkey export shortcuts for MS01), `frontier-mfc10ay-mask-encoding-flex-cable` (KiCad reverse-engineered replacement for the MFC10AY manual carrier's mask-encoding flex cable, made at JLCPCB in 2026), `noritsu-with-frontier-keys`. No license files.
+- **torarin/fujirawconvert**: already known.
+- Not scanner control, but related: Open Negative Initiative (GPL-3.0, negative converter with a "Frontier SP-3000" stock profile), negaflow (Apache-2.0), jackw01/scanlight (open hardware RGB light source), Trichroma Lab (commercial, emulates the SP-3000 look from camera scans).
+
+**Commercial and official standalone routes** (from search snippets)
+- Fujifilm software kits: MS01 Basic + MS11 Optional Connection Software for SP-500/SP-3000 standalone; S1 SP-3000 Basic Software (v3.0-0E-511); MS01 v4.2 listed for Win2K/NT/XP/7 x86; a forum post says Windows 10 64-bit needs a newer MS01.
+- "S-alone" in the service manual is a startup fallback: if the printer processor fails at startup, the scanner alone starts.
+- A Fujifilm installation document (PP3-A1444E2, hosted on pdfcoffee) reportedly covers replacing the 1394 driver for Windows 10, disabling UAC when connecting the SP-3000, and disabling FireWire networking (link only, not read in full).
+- Services: Fotronix SP3000 Virtualisation Service and plug-and-play kit (Linux host, MS01/MS11 in a VM); Emil Raji; Sprocket (front-end replacement only: "the scanner side is untouched").
+
+**Conclusion**: every open project found works on the **server side** (InSpool, database, RAW files) or on the hardware around the scanner. None replaces the scanner PC or speaks the FireWire protocol. Confidence: medium (closed forums not searchable).
+
+**Consequence for the plan**: the server side is a low-risk first deliverable. A Linux replacement for the XP front end needs no FireWire and never talks to the scanner (proposed to the project owner, not decided).
+
 ## 2026-11-26 (later): no hardware purchases
 
 **Decision** (project owner): drop the shopping list. We build with the machines we already have; Adre Lanine runs his version on a laptop.

@@ -15,6 +15,21 @@ Public references only. Links and our own one-line summaries, never copies. Docu
 - Forum: minilabhelp.com, Fuji subforum (blocks automated reading).
 - Adre Lanine, "Frontier SP-3000 Modernisation": https://www.facebook.com/groups/417276349694136/permalink/1855588375862919/
 
+## Open projects around the SP-3000
+
+- [isakarvid/fujisan](https://github.com/isakarvid/fujisan): Python front-end replacement ("FDIA clone") for macOS, 2016-2019. No license file.
+- [photolaundry/frontier-hot-previewer](https://github.com/photolaundry/frontier-hot-previewer): converts InSpool RAW files to TIFF for preview.
+- [photolaundry/frontier-ms01-shortcuts](https://github.com/photolaundry/frontier-ms01-shortcuts): AutoHotkey export shortcuts for MS01.
+- [photolaundry/frontier-mfc10ay-mask-encoding-flex-cable](https://github.com/photolaundry/frontier-mfc10ay-mask-encoding-flex-cable): open replacement flex cable for the MFC10AY carrier.
+- [jackw01/scanlight](https://github.com/jackw01/scanlight): open hardware RGB light source for camera scanning (context on why RGB light).
+
+## Commercial standalone routes
+
+- [minilablaser: Fujifilm film scanner standalone software](https://minilablaser.com/fujifilm-film-scanner-standalone-software/) and [S1 SP-3000 Basic Software](https://minilablaser.com/s1/).
+- [Fotronix SP3000 Virtualisation Service](https://www.fotronix.uk/product/fujifilm-sp3000-virtualisation-service/).
+- *Fujifilm*, installation document PP3-A1444E2 (Windows 10 1394 driver notes): https://pdfcoffee.com/pp3-a1444e2-pdf-free.html
+- minilabhelp threads on standalone setup: [24135](https://www.minilabhelp.com/index.php?%2Fforums%2Ftopic%2F24135-frontier-sp-3000-stand-alone-set-up-help%2F=), [24249](https://www.minilabhelp.com/index.php?%2Fforums%2Ftopic%2F24249-setting-up-sp3000-for-stand-alone%2F=), [27237](https://minilabhelp.com/index.php?%2Fforums%2Ftopic%2F27237-sp3000-standalone-setup=).
+
 ## Raw data
 
 - [fujirawconvert](https://github.com/torarin/fujirawconvert): menu 2241 .bin + .tag to TIFF. Issue #2 (2026-11-10) asks whether anyone has looked at the MS11 to scanner communication.
