@@ -1,8 +1,8 @@
 # open-frontier
 
-Drive a Fujifilm Frontier SP-3000 straight from a modern Linux PC: FireWire control, raw CCD capture and image processing. No Windows 2000, no Toshiba.
+Run a Fujifilm Frontier SP-3000 from one modern PC, natively on Windows 10: spool decoding and image export first, then the scanner's FireWire link. No Windows 2000, no Toshiba.
 
-> **Status: Phase 0 (research and preservation). There is no scanner control code yet.**
+> **Status: Phase 0 (research and preservation), plus a first Windows 10 program that converts finished spool orders (`.RAW` + `.INF`) to JPEG/TIFF.**
 > Nothing in this repository talks to a scanner today.
 
 ## Why
@@ -17,7 +17,7 @@ Scanner PC "EZPC00" (Toshiba, Windows 2000 Pro, A1 or MS01+MS11 or S1)
 Front-end server "FRONTEND" (Windows XP/7/10: C4/C5, S2, MS01, or Sprocket)
 ```
 
-Those PCs are dying, Windows 2000 speaks only SMB1, and every workaround keeps Windows 2000 alive in some form (native, or in a VM). In November 2026 Adre Lanine showed a working prototype that replaces both PCs with one modern computer and doubles the output resolution. That work is unpublished. This project aims to build an open equivalent.
+Those PCs are dying, Windows 2000 speaks only SMB1, and every workaround keeps Windows 2000 alive in some form (native, or in a VM). In November 2026 Adre Lanine showed a working prototype that replaces both PCs with one modern computer, is much faster, and reaches about twice the linear resolution of the usual medium export. That work is unpublished. This project aims to build an open equivalent.
 
 ## Scope: the SP-3000 first, the whole SP family by design
 
@@ -27,26 +27,43 @@ No open-source project for any Frontier SP scanner was found (GitHub and web sea
 
 ## Goal
 
-One Linux computer we already have (desktop or laptop) with a FireWire port, and a web interface:
+One computer we already have, running Windows 10 natively and standalone, with a FireWire port and a web interface. In the order we expect to get there:
 
-1. Speak the SP-3000 FireWire protocol from user space (`/dev/fw*`, firewire-cdev).
-2. Capture raw CCD data, including the pixel-shift positions and the infrared channel.
-3. Calibrate, assemble, invert and color-correct on the PC.
-4. Export 16-bit TIFF and JPEG, and control the carrier (frame detection, whole-roll scans, XPan).
+1. Decode the spool files the scanner PC writes (`.RAW` + `.INF`) and export JPEG/TIFF. **Started**, see below.
+2. Replace the front-end server: watch the spool safely and stand in for the order database (FDIA_DB).
+3. Speak the SP-3000 FireWire protocol, after observing the Fuji software's own traffic, and retire the Toshiba.
+4. Capture raw CCD data with the pixel-shift positions and the infrared channel; calibrate, assemble, invert and color-correct on the PC.
+5. Carrier control (frame detection, whole-roll scans, XPan), queue, web UI, 16-bit TIFF and JPEG export.
+
+## The Windows 10 program
+
+`openfrontier.exe` is one file with nothing to install. It reads finished spool orders and never talks to the scanner.
+
+```text
+openfrontier inspect <order folder>           report the frames, the RAW header and every .INF field
+openfrontier convert <order folder> --out DIR write JPEG, or TIFF with --format tiff
+openfrontier compare <frame.RAW> <fuji.jpg>   check our decode against the Fuji software's output
+openfrontier firewire                         list the FireWire hardware Windows sees (read-only)
+```
+
+It refuses to read a folder that may be the scanner's live spool (a network path, or a folder named InSpool, OutSpool or ImgExchange) unless told the order is finished. On Windows it opens every spool file with `FILE_SHARE_DELETE`, the documented way to read without blocking the Fuji software. Build it with Go 1.24 or later from `src/`. How to test it: [docs/windows-test-plan.md](docs/windows-test-plan.md).
 
 ## Plan
 
 | Phase | What | Status |
 |---|---|---|
 | 0 | Preserve the original system: disk clones, configuration, calibration data, reference scans | in progress |
+| S1 | Decode finished spool orders (RAW/INF) to JPEG/TIFF, natively on Windows 10 | written, to be checked on real files |
+| S2 | Watch the spool safely, reading order status from FDIA_DB | not started |
+| S3 | Stand in for FDIA_DB and retire the front-end server | not started |
 | 1a | Observe the original system passively, logging from inside Windows 2000 | not started |
-| 1b | Identify FireWire nodes from Linux, read-only | not started |
+| 1b | Identify FireWire nodes from the new PC, read-only | not started |
 | 2 | Map the protocol: static analysis, bus captures, raw dump comparison | not started |
 | 3 | Reproduce it, starting with harmless status reads | not started |
-| 4 | Image pipeline: decode, calibrate, pixel shift, inversion, color | not started |
+| 4 | Image pipeline from raw CCD data: calibration, pixel shift, inversion, color | not started |
 | 5 | Product: carrier control, queue, web UI, export | not started |
 
-Details: [docs/plan-review.md](docs/plan-review.md), [docs/phase0-checklist.md](docs/phase0-checklist.md), [docs/phase1-runbook.md](docs/phase1-runbook.md).
+Details: [docs/plan-review.md](docs/plan-review.md) (revised order), [docs/windows-test-plan.md](docs/windows-test-plan.md), [docs/phase0-checklist.md](docs/phase0-checklist.md), [docs/phase1-runbook.md](docs/phase1-runbook.md).
 
 ## Safety rules (for the hardware)
 
@@ -65,11 +82,11 @@ Fujifilm and Frontier are trademarks of FUJIFILM Corporation. This project is no
 ## Repository layout
 
 ```
-docs/        journal, protocol notes, hardware, phase checklists, sources
+docs/        journal, protocol notes, plan review, phase checklists, test plan, sources
 collect/     read-only data collection kit for people who run an SP-3000 today
 tools/       small read-only helper scripts
 analysis/    notes from static analysis (never the binaries themselves)
-src/         future control and image code (empty for now)
+src/         the openfrontier program (Go): spool decoding, image export, FireWire inventory
 ```
 
 ## How to help

@@ -2,7 +2,36 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
-## 2026-11-26 (latest): deep read of all Sprocket 1.25.1 plain-text files
+## 2026-11-26 (latest): first program, natively on Windows 10
+
+**Decisions (user)**
+- No outreach to other people.
+- The program must run natively and standalone on Windows 10. This replaces the idea, earlier the same day, of using a MacBook as the reference machine.
+
+**Done**
+- Reviewed the whole plan against what we now know. Revised order in `plan-review.md`: the spool side first (S1 to S3), FireWire research on Linux (a live USB on the Windows 10 PC is enough), the Windows FireWire driver last.
+- Wrote `openfrontier` in Go (`src/`), one Windows `.exe` with nothing to install. Commands: `inspect`; `convert` (JPEG, or TIFF uncompressed or with Deflate); `compare` (our decode against the Fuji output, in all eight orientations and both channel orders); `firewire` (read-only Plug and Play inventory through PowerShell). Our own implementation of the facts in `protocol.md`, section 9; nothing copied.
+- Safety built in: it refuses network paths and folders named InSpool, OutSpool or ImgExchange unless `--live-spool-ok` is given; never writes into the folders it reads or into a spool-named folder; opens files with read, write and delete sharing on Windows; writes output through temporary files.
+- Wrote `docs/windows-test-plan.md`: T0 FireWire check, T1 one finished order, offline.
+
+**Tests (evidence)**
+- Unit and end-to-end tests with synthetic files (`go test ./...`, 78 to 85 percent statement coverage per package). They check the code against our own reading of the formats, not against the scanner.
+- Independent check: a Python/Pillow script wrote a full-size frame (5444 x 3649, 59,595,500 bytes, the size Sprocket's documentation gives for a Large scan) and its .INF from the documented layout. Our program found the layout (interleaved, row difference 1.1 against 56.0 for the next candidate), converted it (about 0.75 s and 270 MB peak memory per JPEG frame, about 0.9 s per Deflate TIFF frame at zlib's fastest level), and `compare` found the rotation of a reference JPEG made by Pillow (mean difference 0.86 of 255). Pillow reads our TIFF files (RGB, Adobe Deflate).
+- Builds for Windows (64 and 32 bit), Linux and macOS; `go vet` is clean on all three. The Windows-only code (CreateFile share flags, network drive check, console pause, PowerShell query) is compile-checked only: Wine could not start any program in the build container. T0 and T1 on the user's PC are its first real run.
+
+**Corrections**
+- `protocol.md` 9.6: the SizeTable millimetre columns are print sizes (305 mm is 12 inches), not film. Adre Lanine's 5573 x 3722 is about the scanner's own 135L size (5444 x 3650), so it does not prove pixel-shift assembly on the PC. Same correction in `CLAUDE.md`.
+
+**Findings and hypotheses**
+- Windows 10 user mode cannot send 1394 transactions without a kernel driver of our own, which only loads in test-signing mode (medium-high). Windows 10 client hypervisors have no PCI passthrough, so the scanner PC cannot run in a VM on that PC with its FireWire card (medium-high).
+- VDEntry may register a Windows 1394 virtual device (low-medium).
+- Sprocket's macOS launchd files say "UNVALIDATED: no Mac has run this" (high confidence, from the files): its macOS build has not been run against a live scanner.
+
+**Next**
+- User: T0 (`openfrontier firewire`) on the Windows 10 PC, then T1 with one finished order and the Fuji output of the same frames.
+- Then: correct whatever the real files contradict, and design the S2 watcher.
+
+## 2026-11-26 (earlier): deep read of all Sprocket 1.25.1 plain-text files
 
 **Read**: every remaining plain-text file in the Sprocket 1.25.1 package not covered in the earlier session: `docs/REFERENCE.md`, `docs/TROUBLESHOOTING.md`, `docs/GETTING_STARTED.md`, `docs/DEPLOYMENT.md`, `docs/MACOS_INSTALL.md`, `docs/DATABASE_SETUP.md`, `sprocket.ini.example` (complete, including all comments), all seed data files (`10_DEVICETABLE.txt`, `11_SIZETABLE.txt`, `12_COMBINATIONTABLE.txt`, `13_DESCRIPTOR.txt`), `tools/smb_bench.py`, `tools/sprocket_agent.py`, `tools/support_link.py`, `macos/com.boutiquefilmlab.sprocket.plist`, `macos/com.boutiquefilmlab.sprocket-dashboard.plist`. No compiled executables were opened or run.
 

@@ -93,6 +93,8 @@ ghidra/
 __pycache__/
 build/
 target/
+dist/
+/src/openfrontier
 .DS_Store
 Thumbs.db
 

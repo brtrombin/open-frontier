@@ -2,7 +2,7 @@
 
 Everything here is derived by the project, in our own words. No Fujifilm material is copied. Each fact carries its evidence and a confidence level. Empty sections mean "not known yet".
 
-Status (2026-11-26): **nothing observed on FireWire yet.** Server-side protocol substantially documented from public docs. Fill in during Phases 0, 1 and 2.
+Status (2026-11-26): **nothing observed on FireWire yet.** Server-side protocol substantially documented from public docs. Spool file decoding is implemented in `src/` (our own code), not yet checked on real files. Fill in during Phases 0, 1 and 2.
 
 ## 1. Physical topology
 
@@ -18,7 +18,7 @@ Notes: in Chauvel's original setup the two links used two controllers; one two-p
 Questions:
 - How many 1394 controllers does the scanner PC have (one bus or two)?
 - Which PCI controller (vendor:device ID) and driver?
-- What bus ID does VDEntry assign, and does the software depend on it?
+- What bus ID does VDEntry assign, and does the software depend on it? Hypothesis (low-medium): VDEntry adds a Windows 1394 "virtual device", so the Fuji driver addresses the scanner node directly instead of binding to its unit directory (`docs/plan-review.md`, point 15).
 
 ## 2. Nodes on the bus
 
@@ -75,10 +75,11 @@ Not FireWire, but the other interface of the scanner PC, and the one existing op
 - 32-byte header starting with ASCII `DR`, followed by `width * height * 3` bytes of 8-bit RGB pixel data. Width and height are the 5th and 6th little-endian 16-bit words of the header (medium confidence from fujisan). Sprocket verifies file completeness by computing `32 + width * height * 3` from the .INF's dimensions and comparing against the actual file size, verified on 335 real archived frames (high confidence from Sprocket docs).
 - **The RAW already contains the Fuji color rendering.** Sprocket's documentation states: "the SP-3000 bakes its color rendering into the RAW, so the default decode already is the Frontier look" and that applying a 3D LUT is only needed to get a *different* grade. This means the "Image Intelligence" processing happens before the data reaches InSpool, not in the export software (high confidence for the RAW content, medium confidence for where the processing runs, since it could be in the DSPs, in the scanner PC software, or both).
 - Typical sizes: about 26 MB for a 2503x3637 normal scan, about 57 MB for a 5444x3649 large scan, about 40 MB per frame average (high confidence from Sprocket docs).
+- Not confirmed on real files yet: which header words hold width and height, whether the pixels are interleaved (RGBRGB...) or in three planes, and the channel order. `openfrontier inspect` prints all 16 header words and ranks the possible layouts by the difference between samples one image row apart (the true row length gives the smallest); `openfrontier compare` matches a frame against the Fuji software's output in all eight orientations and both channel orders.
 
 ### 9.3 Per-frame .INF files (DIPP format)
 
-The .INF is a Fuji "DIPP" (Digital Imaging Processing Protocol) record: a sequence of typed key/value entries. Layout (all little-endian): an ASCII key (NUL-terminated), then a 2-byte record size, a 2-byte type code, a 4-byte count or length, and the value bytes. Type codes: 0x03 = scalar u32, 0x13/0x1013 = u32 array, 0x1F = UTF-16LE string, 0x40 = Windows FILETIME (8 bytes). High confidence from Sprocket's `inf_parser.py`.
+The .INF is a Fuji "DIPP" (Digital Imaging Processing Protocol) record: a sequence of typed key/value entries. Layout (all little-endian): an ASCII key (NUL-terminated), then a 2-byte record size, a 2-byte type code, a 4-byte count or length, and the value bytes. Type codes: 0x03 = scalar u32, 0x13/0x1013 = u32 array, 0x1F = UTF-16LE string, 0x40 = Windows FILETIME (8 bytes). High confidence from Sprocket's `inf_parser.py`. That file is not consistent about 0x13: its description calls it an array, its decoder reads it as a scalar, and it also mentions 0x08 as a u8. Our decoder reads 0x13 as a u32 array for the size keys (`02_SOURCE_SIZE`, `02_SCAN_SIZE`, `02_FILE_SIZE`) and as a scalar otherwise, and lists every key it finds, known or not, so a real file settles it (medium confidence until then).
 
 Known fields (key names are the ASCII strings in the file):
 
@@ -153,7 +154,7 @@ Microsoft SQL Server (MSDE/SQL Server Express), database name `FDIA_DB`. One dat
 
 ### 9.6 Scanner output dimensions
 
-From the SizeTable seed data shipped with Sprocket (high confidence). Width is always along the film strip (305 mm physical for 35mm film).
+From the SizeTable seed data shipped with Sprocket (high confidence). The millimetre columns are output (print) sizes at about 300 pixels per inch (305 mm is 12 inches), not film dimensions; a 35 mm frame is 36 x 24 mm. (Corrected 2026-11-26: an earlier version of this note read 305 mm as the film.)
 
 | Size name | Format | H pixels | W pixels | H mm | W mm |
 |---|---|---|---|---|---|
@@ -174,7 +175,7 @@ From the SizeTable seed data shipped with Sprocket (high confidence). Width is a
 | APS-P | SP3000sRGB | 2098 | 3638 | 174.7 | 305 |
 | 35XL | SP3000sRGB | 8110 | 5428 | 682.7 | 455.6 |
 
-Note: the L (large) sizes at 3650 W pixels vs N (normal) at 3638 suggest different scan modes, possibly related to pixel shift. Adre Lanine's medium output of 5573 x 3722 is larger than any single-pass size here, confirming pixel-shift assembly on the PC side (medium confidence).
+Note: the L (large) sizes at 3650 W pixels vs N (normal) at 3638 suggest different scan modes, possibly related to pixel shift (low-medium confidence). Adre Lanine's medium output of 5573 x 3722 is about the size of the scanner's own 135L (5444 x 3650), and 35XL is larger still, so his output does not by itself prove pixel-shift assembly on the PC side (medium confidence; corrected 2026-11-26, an earlier version said it did). His "2x" compares against the usual medium export (2740 x 1830).
 
 ### 9.7 F-DIA client library dialects
 
@@ -278,3 +279,5 @@ Scanner-side and importer timing values (high confidence from Sprocket docs):
 - What does the "handshake file" at order registration contain, and where does it live?
 - What is the exact TDS LOGIN7 record layout the scanner sends? (The older dialect's layout "has never been decoded".)
 - Files referenced by Sprocket but not shipped: `PORTING.md`, `LINUX_INSTALL.md`, `SSI_REPLACEMENT_SPEC.md`. These likely contain additional protocol or deployment facts.
+- RAW layout on real files: header word positions, interleaved or planar pixels, channel order (see 9.2).
+- What do the values of `02_ROTATION_FOR_PROPER_RECTANGLE` mean, and in which direction? Our converter provisionally reads 0, 90, 180 and 270 as degrees clockwise and leaves other values unrotated; `openfrontier compare` tells which rotation really matches the Fuji output.

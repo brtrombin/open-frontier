@@ -10,6 +10,8 @@ Applies to Debian 13 or Ubuntu 24.04 LTS. Commands are run as a normal user with
 
 ---
 
+> **On the Windows 10 PC** (the project's target since 2026-11-26): the machine check is `openfrontier firewire` with no scanner connected (`docs/windows-test-plan.md`, T0). The Linux steps below can run from a Linux live USB on the same PC, so nothing is installed on the Windows disk. A live system forgets `/etc/modprobe.d` at every boot and may load `firewire_ohci` before you can stop it: boot it with `modprobe.blacklist=firewire_ohci` added to the kernel command line, then create the file of step 1.0.2 in the running session (skip `update-initramfs` and the reboot) before loading the driver by hand.
+
 ## 1.0 Prepare the Linux PCs (no scanner connected)
 
 ### 1.0.1 Install tools

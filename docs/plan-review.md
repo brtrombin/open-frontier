@@ -59,9 +59,9 @@ A small lower filter driver on the Fujifilm device stack, logging every IRB with
 
 The FireWire subsystem is maintained today (`MAINTAINERS`: `S: Maintained`, high confidence). Secondary sources say the maintainer plans to hand off to distributions in 2027-2028 and step down in 2029 (medium confidence). The code will likely stay in LTS kernels for years after that, but we should pin an LTS kernel (Debian 13 ships 6.12) and keep all bus access in one module (firewire-cdev), so that a future backend change does not touch the rest of the code.
 
-### 10. Contact people early (no confidence needed)
+### 10. Contact people early (dropped)
 
-Adre Lanine (Facebook group) and the fujirawconvert author (GitHub issue #2 already asks about MS11 to scanner traffic) may share findings or collaborate, which could save months.
+Decision (2026-11-26): no outreach to other people. We work from our own equipment, public sources and the plain-text documentation we already have.
 
 ## Wrong order
 
@@ -83,6 +83,26 @@ Whatever machine we use must have a FireWire controller that Linux drives with `
 
 If the scanner MCU accepts high-level commands ("scan frame N at resolution R with 4 shift positions") and handles motors and pixel shift itself, the project is mostly protocol plus image processing. If the PC drives each step (CCD shift, LED timing, carrier moves), the project is much bigger and riskier. The config ROM unit directory (specifier ID, version) and the static analysis should answer this early.
 
+## Windows 10 as the target (added 2026-11-26, later)
+
+Decision (2026-11-26): the program must run natively and standalone on Windows 10.
+
+### 14. What runs natively on Windows 10 today (high)
+
+The spool side. Reading `.RAW` and `.INF` files and writing JPEG/TIFF needs only file access, and Windows is where the documented safe read exists (opening with `FILE_SHARE_DELETE`). `src/` builds one `.exe` that does this with nothing to install.
+
+### 15. FireWire from Windows 10 user space needs a driver (medium-high)
+
+As far as we know, Windows 10's 1394 stack (`1394ohci.sys`) gives user-mode programs no way to send asynchronous or isochronous transactions: the user-mode interface we know of (`IOCTL_IEEE1394_API_REQUEST`) only adds or removes virtual devices for a kernel driver to bind to. Talking to the scanner from Windows therefore needs a kernel-mode driver of our own, along the lines of Microsoft's 1394 driver samples. A driver we build ourselves only loads in test-signing mode, with Secure Boot off (a persistent change on that PC); production signing needs a paid certificate, which the no-purchase rule excludes.
+
+Linux gives the same access from user space with no driver (`firewire-cdev`). So the FireWire research (Phases 1b to 3) stays on Linux, for example from a Linux live USB on the same PC, which changes nothing on the Windows installation. The Windows driver question comes back once the protocol is known.
+
+Hypothesis (low-medium): VDEntry, the Fujifilm tool that sets up the scanner PC's FireWire driver, may use that same virtual-device interface. The Fuji driver would then be a virtual-device driver that addresses the scanner node directly, rather than binding to a unit directory in the scanner's configuration ROM. The collection kit's export of `HKLM\SYSTEM\CurrentControlSet\Enum` would show it as a `V1394\...` entry.
+
+### 16. No VM shortcut on a Windows 10 host (medium-high)
+
+Jack Chauvel runs the scanner PC's software in a VM on ESXi, with the FireWire card passed through. Windows 10 client hypervisors cannot pass a PCI device to a guest: Hyper-V Discrete Device Assignment is a Windows Server feature, and VMware Workstation and VirtualBox on Windows have no PCI passthrough. The VM route remains possible on a separate machine running ESXi or Linux with KVM, not on the Windows 10 PC itself.
+
 ## Server-side safety rules (added 2026-11-26)
 
 Any future tool that touches InSpool or FDIA_DB must follow these, confirmed from real failures documented in Sprocket's user documentation:
@@ -93,7 +113,19 @@ Any future tool that touches InSpool or FDIA_DB must follow these, confirmed fro
 4. Never run the collection kit during a scan.
 5. On Windows, open InSpool files with `FILE_SHARE_DELETE` (`FILE_SHARE_ALL`).
 
-## Proposed order
+## Revised order (2026-11-26, later)
+
+Supersedes the order below. The spool side comes first, because its formats are documented and it can be built and checked without touching the scanner; the target is a Windows 10 PC; there is no outreach.
+
+1. **Phase 0**: preserve and document. Still first for anything that touches the original system.
+2. **S1**, now: decode finished spool orders on Windows 10, offline, and compare with the Fuji output (`docs/windows-test-plan.md`). This confirms the RAW and INF formats on real files.
+3. **S2**: a watcher that reads only finished orders (`OrderTable.Status == 2`), opening files with `FILE_SHARE_DELETE`. Needs read access to FDIA_DB and the SMB1 client on the Windows 10 PC, with the equipment owner's go-ahead.
+4. **S3**: stand in for FDIA_DB over TDS, then retire the front-end server. Needs captures of the scanner PC's own SQL traffic first.
+5. **Phase 2c**, in parallel: static analysis of the user's own disk image.
+6. **Phase 1a**, then **1b** from a Linux live USB on the Windows 10 PC, then **Phase 2**, the abort and recovery procedure, and **Phase 3**, as below.
+7. The Windows FireWire driver (point 15), once the protocol is known.
+
+## Earlier proposed order (2026-11-25, superseded)
 
 1. **Phase 0**: preserve and document, including the FireWire topology and calibration folders.
 2. **Phase 2c**, static analysis of the user's own disk image.

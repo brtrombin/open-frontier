@@ -4,12 +4,14 @@
 
 Do what Adre Lanine's "Frontier SP-3000 Modernisation" project did: remove the Toshiba scanner PC running Windows 2000 (EZPC00) and the XP front-end server, and drive the scanner directly from a single modern computer. That computer speaks FireWire to the SP-3000 image box, captures the CCD data and produces JPEG/TIFF itself.
 
-Target platform: Linux (Debian/Ubuntu LTS) on hardware we already have, desktop or laptop, with a FireWire port. **No hardware purchases** (decision of 2026-11-26). Adre Lanine runs his version on a laptop (in his video it looks like a MacBook Pro). Reasons for Linux:
-- Linux exposes FireWire to user space (firewire-core, `/dev/fw*` devices, firewire-cdev ioctls).
+Target platform: **Windows 10, natively and standalone** (decision of 2026-11-26), on hardware we already have, with a FireWire port. **No hardware purchases** (decision of 2026-11-26). Adre Lanine runs his version on a laptop (in his video it looks like a MacBook Pro). The spool side already runs natively on Windows 10 (`src/`, one `.exe`, nothing to install). For the FireWire link, Linux stays the research platform:
+- Linux exposes FireWire to user space (firewire-core, `/dev/fw*` devices, firewire-cdev ioctls), with no driver to write.
+- Windows 10/11 have a 1394 OHCI driver, but user-mode programs cannot send 1394 transactions: that needs a kernel driver of our own, which only loads in test-signing mode (`docs/plan-review.md`, point 15).
 - macOS 26 Tahoe removed all FireWire support, including through Thunderbolt adapters (macOS 15 still has it).
-- Windows 10/11 have a 1394 OHCI driver, but raw user-space access is much harder.
 
-Final interface: a web application served by the Linux PC, usable from Windows, Mac or a phone.
+So FireWire research runs on Linux (a live USB on the Windows 10 PC is enough), and the Windows driver follows once the protocol is known.
+
+Final interface: a web application served by that PC, usable from Windows, Mac or a phone.
 
 ## Working rules
 
@@ -71,18 +73,21 @@ Post "Frontier SP-3000 Modernisation", 2026-11-15, Facebook group "Fuji Frontier
 - Says FireWire is not the bottleneck; time was lost in waits between data blocks and in the original software's processing/export.
 - Features: CMYD adjustment after the scan, auto rotation, XPan 10,277 x 3,635 px via stitched linear scan, whole-roll TIFF, exposure report.
 - In the video: a laptop resembling a MacBook Pro showing a thumbnail grid in a browser; the Fuji monitor is off.
-- Inference (medium confidence): his own software speaks the Fuji FireWire protocol, captures raw CCD data, assembles pixel shift and applies color on the PC. Worth contacting him through the group.
+- Inference (low-medium confidence): his software either speaks the Fuji FireWire protocol itself or drives the Fuji scanner software in some form; his posts do not say which. His medium output (5573 x 3722) is about the size of the scanner's own Large scan (135L, 5444 x 3650), so his doubling is relative to the usual medium export, and his speed and workflow are the parts we cannot explain yet (medium confidence).
+- No outreach to him or to anyone else (decision of 2026-11-26).
 
 ## Phases
 
-See `docs/plan-review.md` for the reviewed order. Summary:
+See `docs/plan-review.md` for the reviewed order (revised 2026-11-26). Summary:
 
-0. Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology).
-1. Identify without touching: 1a passive host-side logging of the original system (Windows 2000 in a VM snapshot or on a cloned disk); 1b Linux as host, read-only, with drivers that transmit blacklisted.
-2. Observe the protocol: static analysis of the user's own disk image (Ghidra), bus captures, comparison with menu 2241 dumps.
-3. Reproduce, starting with harmless reads, then init and a single low-resolution frame, each with explicit approval.
-4. Image: decode, dark/flat calibration, pixel shift, inversion and color (CMYD), IR, export.
-5. Product: carrier control, queue, web UI, export.
+- **0.** Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology).
+- **S1.** Decode finished spool orders (`.RAW` + `.INF`) to JPEG/TIFF on Windows 10, offline, and compare with the Fuji output. Code in `src/`, to be checked on real files (`docs/windows-test-plan.md`).
+- **S2.** Watch the spool, reading only finished orders (`Status == 2`). **S3.** Stand in for FDIA_DB and retire the front-end server.
+- **1.** Identify without touching: 1a passive host-side logging of the original system (Windows 2000 in a VM snapshot or on a cloned disk); 1b a Linux host (live USB on the Windows 10 PC), read-only, with drivers that transmit blacklisted.
+- **2.** Observe the protocol: static analysis of the user's own disk image (Ghidra), bus captures, comparison with menu 2241 dumps.
+- **3.** Reproduce, starting with harmless reads, then init and a single low-resolution frame, each with explicit approval.
+- **4.** Image from raw CCD data: dark/flat calibration, pixel shift, inversion and color (CMYD), IR, export.
+- **5.** Product: carrier control, queue, web UI, export, and the Windows FireWire driver.
 
 ## Open questions
 
@@ -92,3 +97,4 @@ See `docs/plan-review.md` for the reviewed order. Summary:
 - What does the menu 2241 .tag file contain?
 - Are the commands high-level ("scan frame N") or low-level (motors, CCD shift)?
 - Where on the scanner PC disk does per-machine calibration data live?
+- In the spool `.RAW`, which header words hold width and height, are the pixels interleaved, in which channel order, and what does the `.INF` rotation value mean? (`openfrontier inspect` and `compare` on one real frame answer these.)
