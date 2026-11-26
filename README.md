@@ -27,7 +27,7 @@ No open-source project for any Frontier SP scanner was found (GitHub and web sea
 
 ## Goal
 
-One Linux PC, one FireWire card, a web interface:
+One Linux computer we already have (desktop or laptop) with a FireWire port, and a web interface:
 
 1. Speak the SP-3000 FireWire protocol from user space (`/dev/fw*`, firewire-cdev).
 2. Capture raw CCD data, including the pixel-shift positions and the infrared channel.
@@ -39,7 +39,7 @@ One Linux PC, one FireWire card, a web interface:
 | Phase | What | Status |
 |---|---|---|
 | 0 | Preserve the original system: disk clones, configuration, calibration data, reference scans | in progress |
-| 1a | Observe the original system passively with a bus sniffer (nosy) | not started |
+| 1a | Observe the original system passively, logging from inside Windows 2000 | not started |
 | 1b | Identify FireWire nodes from Linux, read-only | not started |
 | 2 | Map the protocol: static analysis, bus captures, raw dump comparison | not started |
 | 3 | Reproduce it, starting with harmless status reads | not started |
@@ -76,7 +76,6 @@ src/         future control and image code (empty for now)
 
 - **You run an SP-3000 today.** The read-only kit in [collect/](collect/README.md) gathers the facts we need: FireWire controllers, driver names and versions, software version, boot timing. It never talks to the scanner. Send the results privately, not as a pull request.
 - **You know IEEE 1394.** Read [docs/protocol.md](docs/protocol.md) and the open questions in it.
-- **You have a TI PCILynx card** (Unibrain Fireboard 400 Lynx-2, IOI-1394TT): we need one for the nosy sniffer.
 
 ## Prior art and thanks
 

@@ -2,6 +2,16 @@
 
 One entry per working session: date, what was done, evidence, confidence. Newest first. Only our own observations; no Fujifilm material and no private data from collaborators' machines.
 
+## 2026-11-26 (later): no hardware purchases
+
+**Decision** (project owner): drop the shopping list. We build with the machines we already have; Adre Lanine runs his version on a laptop.
+
+**Consequences**
+- `docs/hardware.md` removed.
+- The nosy bus sniffer is out (it needs a rare TI PCILynx PCI card). Phase 1a becomes passive host-side logging inside Windows 2000, run in a VM snapshot or on a cloned disk, plus static analysis.
+- The Linux machine can be a desktop or a laptop, as long as Linux sees a FireWire controller (`lspci -nnk`). Open question: whether a laptop port (for example a MacBook Pro FireWire 800 port, or a Thunderbolt-to-FireWire adapter) supplies the bus power the scanner's power link seems to need (low confidence either way).
+- pci.ids: `11c1:5901` is the LSI FW643 1394b controller found on many Macs (high confidence on the ID).
+
 ## 2026-11-26 (later): full read of Jack Chauvel's ESXi guide, and Sebastian Schlueter's review
 
 **Sources**: https://www.jackchauvel.com.au/guide-to-virtualising-a-fuji-frontier-sp3000/ (v1.0 draft, 2020-10-12) and https://www.sebastian-schlueter.com/blog/2018/3/7/the-magic-fuji-frontier-sp-3000. Read from copies pasted by the project owner; summarized in our words.
@@ -18,7 +28,7 @@ One entry per working session: date, what was done, evidence, confidence. Newest
 
 **Schlueter** (secondary): the CCD is shifted by two small actuators; the largest output (XXL) is about 4096 x 4096 px for 6x6 and 4096 x 6144 px for 6x9; output can be BMP with more than 8 bits per channel (unverified); Digital ICE uses the IR channel.
 
-**Changes made**: `CLAUDE.md` (links, power-on behavior), `hardware.md` (bus power requirement), `plan-review.md` (new point 1b), `phase1-runbook.md` (power-on order in 1b).
+**Changes made**: `CLAUDE.md` (links, power-on behavior), the hardware list (bus power requirement; the list was removed later the same day), `plan-review.md` (new point 1b), `phase1-runbook.md` (power-on order in 1b).
 
 ## 2026-11-26 (later): second thread, an owner's failed virtualised setup
 
@@ -45,7 +55,7 @@ One entry per working session: date, what was done, evidence, confidence. Newest
 - Paid installers that move SP-3000 setups to modern PCs/VMs: Fotronix (fotronix.uk/sp3000) and Emil Raji (emilraji.com), who reportedly did it for Halide Supply (Collingwood, Australia).
 
 **Technical claims (all from commenters, unverified)**
-- A lab technician (Xanap Filmlab, Bangkok, runs an HS-1800 and an SP-3000) runs the whole Frontier system on a modern PC with the scanner software in a VM, using a StarTech PEX1394A2V (2-port 1394a PCIe) card. Supports our card choice in `hardware.md` (medium confidence).
+- A lab technician (Xanap Filmlab, Bangkok, runs an HS-1800 and an SP-3000) runs the whole Frontier system on a modern PC with the scanner software in a VM, using a StarTech PEX1394A2V (2-port 1394a PCIe) card. A field report for that card (medium confidence).
 - The thread author says only some FireWire chipsets work reliably ("NEC or TI"). This differs from Jack Chauvel's guide (VIA). Low-medium confidence; to be checked against the scanner PC's own controller in Phase 0.
 - The hard parts of a reinstall: the right MS01/MS11 version for the Windows version, and **loading the scanner's own backup during installation**. This supports plan-review point 6: per-scanner data lives on the PC side and must be preserved (medium-high confidence now).
 - Some setups may need conventional PCI FireWire cards, so hosts with legacy PCI.
@@ -101,4 +111,4 @@ One entry per working session: date, what was done, evidence, confidence. Newest
 **Next**
 - Phase 0 on the user's own scanner.
 - The collection kit run by a friend who operates an SP-3000 today.
-- Hunt for a PCILynx card.
+- ~~Hunt for a PCILynx card.~~ Dropped on 2026-11-26: no hardware purchases.

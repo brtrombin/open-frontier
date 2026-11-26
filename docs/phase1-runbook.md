@@ -2,7 +2,9 @@
 
 Prerequisite: Phase 0 complete (backups proven by a restore test).
 
-Phase 1 has three stages. **1.0 never touches the scanner.** 1a and 1b put our hardware on the scanner's FireWire bus, and each needs an explicit go-ahead from the equipment owner before it starts.
+Phase 1 has three stages. **1.0 never touches the scanner.** 1a observes the original Fujifilm software from inside Windows 2000. 1b puts our Linux machine on the scanner's FireWire bus. 1a and 1b each need an explicit go-ahead from the equipment owner before they start.
+
+We use the hardware we already have (a desktop or a laptop with a FireWire port). No purchases.
 
 Applies to Debian 13 or Ubuntu 24.04 LTS. Commands are run as a normal user with `sudo`.
 
@@ -17,10 +19,10 @@ sudo apt update
 ```
 
 ```bash
-sudo apt install linux-firewire-utils pciutils usbutils trace-cmd build-essential linux-source
+sudo apt install linux-firewire-utils pciutils usbutils trace-cmd
 ```
 
-`linux-firewire-utils` provides `lsfirewire`. `linux-source` gives you `tools/firewire/` to build `nosy-dump` (sniffer PC only). Package names can differ slightly between Debian and Ubuntu.
+`linux-firewire-utils` provides `lsfirewire`. Package names can differ slightly between Debian and Ubuntu.
 
 ### 1.0.2 Stop every FireWire driver from loading by itself
 
@@ -31,7 +33,6 @@ sudo tee /etc/modprobe.d/open-frontier.conf >/dev/null <<'EOF'
 # open-frontier: keep the FireWire bus silent until loaded by hand.
 # Controller drivers (load manually with modprobe).
 blacklist firewire_ohci
-blacklist nosy
 # Protocol drivers that would bind to devices and transmit.
 blacklist firewire_net
 blacklist firewire_sbp2
@@ -50,7 +51,7 @@ install firewire_sbp2 /bin/false
 EOF
 ```
 
-`install ... /bin/false` makes the module impossible to load even as a dependency. `firewire_ohci` and `nosy` are only blacklisted (not forbidden), so `modprobe` still loads them when we ask explicitly.
+`install ... /bin/false` makes the module impossible to load even as a dependency. `firewire_ohci` is only blacklisted (not forbidden), so `modprobe` still loads it when we ask explicitly.
 
 ```bash
 sudo update-initramfs -u
@@ -63,34 +64,20 @@ sudo reboot
 ### 1.0.3 Check the PC before connecting anything
 
 ```bash
-lsmod | grep -Ei 'firewire|nosy|snd_(bebob|dice|oxfw|fire)' || echo "OK: no FireWire module loaded"
+lsmod | grep -Ei 'firewire|snd_(bebob|dice|oxfw|fire)' || echo "OK: no FireWire module loaded"
 ```
 
 ```bash
 lspci -nnk | grep -A3 -Ei '1394|firewire'
 ```
 
-Expected: your card with its ID (for example `[1106:3403]` VT6315, `[104c:823f]` XIO2213B, or `[104c:8000]` PCILynx on the sniffer), and no "Kernel driver in use" line.
+Expected: your FireWire controller with its vendor:device ID (for example `[1106:3403]` VIA VT6315, `[104c:823f]` TI XIO2213, `[11c1:5901]` LSI/Agere FW643 on many Macs), and no "Kernel driver in use" line. If nothing shows up, the machine has no FireWire controller Linux can see: tell us the model before going further.
 
 ```bash
 modinfo firewire_ohci | head -5
 ```
 
-```bash
-modinfo nosy | head -5
-```
-
-If `modinfo nosy` fails on the sniffer PC, your distribution does not build it. Tell us the kernel version (`uname -r`), and we will build it from `linux-source`.
-
 Bench test without the scanner: `sudo modprobe firewire_ohci`, then `ls /sys/bus/firewire/devices/`. You should see only `fw0` (the PC itself). Then `sudo modprobe -r firewire_ohci`.
-
-### 1.0.4 Build nosy-dump (sniffer PC only)
-
-```bash
-cd /usr/src && tar xf linux-source-*.tar.* && cd linux-source-*/tools/firewire && make
-```
-
-Result: a `nosy-dump` binary in that folder. Check with `./nosy-dump --help`.
 
 ### What to send back from 1.0
 
@@ -98,16 +85,15 @@ Run `tools/phase1-collect.sh` (from this repository) with no scanner connected. 
 
 ---
 
-## 1a. Passive capture of the original system (nosy)
+## 1a. Passive logging of the original system (host side)
 
-> **STOP.** This stage adds a node to the scanner's FireWire bus. Do not start it before we have reviewed the 1.0 results together and the equipment owner has agreed in writing.
+> **STOP.** This stage installs a logging tool inside Windows 2000. It never sends anything itself, but it sits in the path between the Fujifilm software and the FireWire bus. Do not start it before the tool exists, has been reviewed, and the equipment owner has agreed in writing.
 
-Outline (the detailed steps will be written after 1.0 is reviewed, because they depend on the topology found in Phase 0):
-1. Everything off, everything on the same grounded power strip.
-2. Insert the sniffer PC's PCILynx card between the Toshiba and the scanner, using two of its ports (its PHY repeats traffic between them).
-3. Boot the sniffer PC first, then `sudo modprobe nosy`, then start `nosy-dump` writing to a file.
-4. Power on the scanner and the Toshiba in the usual order. Capture the whole boot, one preview scan, and the shutdown.
-5. Stop the capture, `sudo modprobe -r nosy`, power everything off, and restore the original cabling.
+Outline (the tool is not written yet):
+1. Run it only where it can be undone in one step: a **VM snapshot** of the scanner PC (as in Jack Chauvel's guide) or a **cloned disk**, never the original disk.
+2. Install the logger, reboot Windows 2000, then power up and scan as usual: full boot, one preview, one scan, shutdown.
+3. Copy the log file out.
+4. Revert the snapshot, or put the original disk back.
 
 ---
 

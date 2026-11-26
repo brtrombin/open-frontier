@@ -46,7 +46,7 @@ run system.txt cat /etc/os-release
 run system.txt date -u
 run system.txt cat /proc/cmdline
 run modules.txt lsmod
-for m in firewire_core firewire_ohci nosy firewire_net firewire_sbp2; do
+for m in firewire_core firewire_ohci firewire_net firewire_sbp2; do
     run modules.txt modinfo "$m"
 done
 run modules.txt cat /etc/modprobe.d/open-frontier.conf

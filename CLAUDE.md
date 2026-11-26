@@ -4,7 +4,7 @@
 
 Do what Adre Lanine's "Frontier SP-3000 Modernisation" project did: remove the Toshiba scanner PC running Windows 2000 (EZPC00) and the XP front-end server, and drive the scanner directly from a single modern computer. That computer speaks FireWire to the SP-3000 image box, captures the CCD data and produces JPEG/TIFF itself.
 
-Target platform: Linux (Debian/Ubuntu LTS on an x86 PC with PCIe slots). Reasons:
+Target platform: Linux (Debian/Ubuntu LTS) on hardware we already have, desktop or laptop, with a FireWire port. **No hardware purchases** (decision of 2026-11-26). Adre Lanine runs his version on a laptop (in his video it looks like a MacBook Pro). Reasons for Linux:
 - Linux exposes FireWire to user space (firewire-core, `/dev/fw*` devices, firewire-cdev ioctls).
 - macOS 26 Tahoe removed all FireWire support, including through Thunderbolt adapters (macOS 15 still has it).
 - Windows 10/11 have a 1394 OHCI driver, but raw user-space access is much harder.
@@ -72,7 +72,7 @@ Post "Frontier SP-3000 Modernisation", 2026-11-15, Facebook group "Fuji Frontier
 See `docs/plan-review.md` for the reviewed order. Summary:
 
 0. Preserve the original (disk clones, configuration and calibration data, reference scans, documented cabling and FireWire topology).
-1. Identify without touching: 1a passive nosy capture of the original system; 1b Linux as host, read-only, with drivers that transmit blacklisted.
+1. Identify without touching: 1a passive host-side logging of the original system (Windows 2000 in a VM snapshot or on a cloned disk); 1b Linux as host, read-only, with drivers that transmit blacklisted.
 2. Observe the protocol: static analysis of the user's own disk image (Ghidra), bus captures, comparison with menu 2241 dumps.
 3. Reproduce, starting with harmless reads, then init and a single low-resolution frame, each with explicit approval.
 4. Image: decode, dark/flat calibration, pixel shift, inversion and color (CMYD), IR, export.
