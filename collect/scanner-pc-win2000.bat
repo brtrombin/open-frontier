@@ -39,7 +39,7 @@ echo Nao feche esta janela / do not close this window.
 echo.
 
 rem --- Basic identity ---
-echo [1/9] Sistema / system...
+echo [1/11] Sistema / system...
 (
   echo open-frontier collection kit, scanner PC
   echo Read-only. Contains machine configuration. Share privately, never publish.
@@ -53,7 +53,7 @@ ver > "%OUT%\system.txt"
 set >> "%OUT%\system.txt" 2>&1
 
 rem --- Network and shares (InSpool/OutSpool) ---
-echo [2/9] Rede / network...
+echo [2/11] Rede / network...
 ipconfig /all > "%OUT%\network.txt" 2>&1
 net share >> "%OUT%\network.txt" 2>&1
 net use >> "%OUT%\network.txt" 2>&1
@@ -61,16 +61,16 @@ net config workstation >> "%OUT%\network.txt" 2>&1
 net config server >> "%OUT%\network.txt" 2>&1
 
 rem --- Running services ---
-echo [3/9] Servicos / services...
+echo [3/11] Servicos / services...
 net start > "%OUT%\services-running.txt" 2>&1
 
 rem --- Driver files: names, dates and sizes only (no copies) ---
-echo [4/9] Drivers (lista / list)...
+echo [4/11] Drivers (lista / list)...
 dir /a "%SystemRoot%\system32\drivers" > "%OUT%\drivers-list.txt" 2>&1
 dir /a "%SystemRoot%\inf" > "%OUT%\inf-list.txt" 2>&1
 
 rem --- Registry: hardware enumeration, services, device classes ---
-echo [5/9] Registro / registry (hardware)...
+echo [5/11] Registro / registry (hardware)...
 regedit /e "%OUT%\registry\enum.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum"
 regedit /e "%OUT%\registry\services.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services"
 regedit /e "%OUT%\registry\class.reg" "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class"
